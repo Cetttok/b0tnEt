@@ -1,6 +1,8 @@
 #include <iostream>
 #include "tcpserver.h"
 #include "tcpconnect.h"
+#include <unistd.h>
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -13,15 +15,19 @@ int main(int argc, char* argv[])
         server.start();
         cout << "server started" << std::endl;
         server.nextPendingConnection();
-        cout << "new connection";
-        cout << server.readSocket() << std::endl;
-        cout << "socket read succes";
-        server.closeLastConnection();
+        cout << "new connection" << std::endl;
+        //sleep(2);
+        //sleep(1);
+        //cout << "message send" << std::endl;
+        cout << "Message: " << server.readSocket() << std::endl;
+        cout << "socket read succes"<< std::endl;
+        server.sendMessage("Go back!");
+        //server.closeLastConnection();
         cout << "connection closed" <<  std::endl;
         return 0;
     }
     else if (strcmp(argv[1],"client") == 0){
-        TcpConnect connector("192.168.0.13",1234);
+        TcpConnect connector("127.0.0.1",1234);
         if (connector.fixConnection()){
             cout<< "connected" << std::endl;
         }
@@ -29,8 +35,11 @@ int main(int argc, char* argv[])
             cout << " cant fix connection! Error" << std::endl;
             return 100;
         }
-        connector.sendMessage("Halo from c++ ++++");
+        std::cout <<"Answer: " <<  connector.recieveAnswer("Halo from c++ ++++") << std::endl;
+        //sleep(3);
+        //std::cout <<"Answer: " << connector.readSocket() <<std::endl;
         connector.closeConnection();
+
         return 0;
     }
     else{
