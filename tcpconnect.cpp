@@ -12,6 +12,11 @@ TcpConnect::TcpConnect(std::string ipAddress, const int port):mServerAddress()
 
 }
 
+TcpConnect::~TcpConnect()
+{
+    closeConnection();
+}
+
 bool TcpConnect::fixConnection()
 {
     if (connect(mSocket, (struct sockaddr*)&mServerAddress, sizeof(mServerAddress))==0){ // если подключение прошло умпешно
@@ -42,7 +47,9 @@ void TcpConnect::sendMessage(std::string message)
 
 void TcpConnect::closeConnection()
 {
-    close(mSocket); // желательно закрывать. с стороны клиента желательно наверное
+    if (mSocket!=0){
+        close(mSocket);
+    }// желательно закрывать. с стороны клиента желательно наверное
 }
 
 std::string TcpConnect::readSocket()

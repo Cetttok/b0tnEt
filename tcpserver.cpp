@@ -16,6 +16,16 @@ TcpServer::TcpServer(const int port):mServerAddress()
     }
 }
 
+TcpServer::~TcpServer()
+{
+    if (mClientSocket != 0){
+        close(mClientSocket);
+    }
+    if (mServerSocket != 0){
+        close(mServerSocket);
+    }
+}
+
 bool TcpServer::start()
 {
     if (listen(mServerSocket,MAX_CONNECTIONS)==0){ //запуск сервера и указание количества необработанных соединений
