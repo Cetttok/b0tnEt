@@ -44,6 +44,7 @@ void TcpServer::nextPendingConnection() // принять (подождать) �
 void TcpServer::closeLastConnection() // закрыть последнее
 {
     close(mClientSocket);
+    mClientSocket =0; // 0 - состояние когда сокет закрыт, а <0 когда открыт с ошибкой
 }
 
 void TcpServer::sendMessage(std::string message)

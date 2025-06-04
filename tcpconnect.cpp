@@ -49,6 +49,7 @@ void TcpConnect::closeConnection()
 {
     if (mSocket!=0){
         close(mSocket);
+        mSocket=0;
     }// желательно закрывать. с стороны клиента желательно наверное
 }
 
