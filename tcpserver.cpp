@@ -1,6 +1,7 @@
 #include "tcpserver.h"
 const int MAX_CONNECTIONS =5;
 const int BUFFER_SIZE = 256;
+const int CHECK_BUFFER_SIZE = 16;
 TcpServer::TcpServer(const int port):mServerAddress()
 {
     mServerSocket = socket(AF_INET, SOCK_STREAM, 0); //создание сокета мало ли
@@ -56,11 +57,11 @@ std::string TcpServer::readSocket() // подождать и прочитать 
 {
     std::string result = "";
     char buffer[BUFFER_SIZE] = {0};
-
+    char checkBuffer[CHECK_BUFFER_SIZE] = {0};
     do{ // подождать дату и прочитать буфером
         int bytesRecived = recv(mClientSocket, buffer, sizeof(buffer), 0);
         result.append(buffer,bytesRecived);
     }
-    while(recv(mClientSocket, nullptr, sizeof(nullptr), MSG_PEEK | MSG_DONTWAIT)>0); // продолжить если в сокете еще что то есть
+    while(recv(mClientSocket, checkBuffer , CHECK_BUFFER_SIZE, MSG_PEEK | MSG_DONTWAIT)>0); // продолжить если в сокете еще что то есть
     return result;
 }

@@ -1,5 +1,5 @@
 #include "udpworker.h"
-
+const int CHECK_BUFFER_SIZE = 16;
 const int BUFFER_SIZE = 256;
 
 UdpWorker::UdpWorker():_serverAddress()
@@ -75,4 +75,15 @@ bool UdpWorker::send(std::string message, int port,std::string address)
     }
     return false;
 
+}
+
+bool UdpWorker::checkBuffer()
+{
+    char buffer[CHECK_BUFFER_SIZE ] = {0};
+    if (recvfrom(_socket, buffer, CHECK_BUFFER_SIZE,
+                 MSG_DONTWAIT|MSG_PEEK, nullptr,
+                 0)>0){
+        return true;
+    }
+    return false;
 }

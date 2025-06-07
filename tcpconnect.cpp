@@ -1,5 +1,6 @@
 #include "tcpconnect.h"
 const int BUFFER_SIZE = 256;
+const int CHECK_BUFFER_SIZE = 16;
 TcpConnect::TcpConnect(std::string ipAddress, const int port):mServerAddress()
 {
     mSocket= socket(AF_INET, SOCK_STREAM, 0);
@@ -57,11 +58,11 @@ std::string TcpConnect::readSocket()
 {
     std::string result = "";
     char buffer[BUFFER_SIZE] = {0};
-
+    char checkBuffer[CHECK_BUFFER_SIZE] = {0};
     do{ // подождать дату и прочитать буфером
         int bytesRecived = recv(mSocket, buffer, sizeof(buffer), 0);
         result.append(buffer,bytesRecived);
     }
-    while(recv(mSocket, nullptr, sizeof(nullptr), MSG_PEEK | MSG_DONTWAIT)>0); // продолжить если в сокете еще что то есть (проверка на наличие данных)
+    while(recv(mSocket, checkBuffer, CHECK_BUFFER_SIZE, MSG_PEEK | MSG_DONTWAIT)>0); // продолжить если в сокете еще что то есть (проверка на наличие данных)
     return result;
 }
