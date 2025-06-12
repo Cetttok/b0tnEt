@@ -77,6 +77,23 @@ bool UdpWorker::send(std::string message, int port,std::string address)
 
 }
 
+bool UdpWorker::send(char *data, int size, int port, std::string address)
+{
+    uint32_t s_addr = inet_addr(address.data());
+    struct sockaddr *addr;
+    sockaddr_in addr_in;
+    addr_in.sin_family = AF_INET;
+    addr_in.sin_port = htons(port);
+    addr_in.sin_addr.s_addr = s_addr;
+    addr = (struct sockaddr *)&addr_in;
+    if (sendto(_socket, data, size,
+               0, addr,
+               sizeof(*addr))>0){
+        return true;
+    }
+    return false;
+}
+
 bool UdpWorker::checkBuffer()
 {
     char buffer[CHECK_BUFFER_SIZE ] = {0};
@@ -86,4 +103,13 @@ bool UdpWorker::checkBuffer()
         return true;
     }
     return false;
+}
+
+int UdpWorker::getSocketPort()
+{
+    struct sockaddr_in sin;
+    socklen_t len = sizeof(sin);
+    getsockname(_socket, (struct sockaddr *)&sin, &len);
+    return  ntohs(sin.sin_port);
+
 }
