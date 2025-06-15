@@ -26,12 +26,12 @@
      showguides="true"
      inkscape:zoom="0.71"
      inkscape:cx="569.71831"
-     inkscape:cy="570.42254"
-     inkscape:window-width="1918"
-     inkscape:window-height="1051"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
+     inkscape:cy="569.71831"
+     inkscape:window-width="1342"
+     inkscape:window-height="946"
+     inkscape:window-x="576"
+     inkscape:window-y="105"
+     inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
   <defs
      id="defs1">
@@ -120,6 +120,13 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#00ff00;fill-opacity:0;fill-rule:evenodd;stroke:#8ffc00;stroke-width:0.374267;stroke-dasharray:none;stroke-opacity:1"
+       id="rect52-47"
+       width="24.958452"
+       height="10.425005"
+       x="154.87521"
+       y="136.46619" />
     <text
        xml:space="preserve"
        transform="scale(0.26458333)"
@@ -143,6 +150,19 @@
        transform="scale(0.26458333)"
        id="text3"
        style="font-size:18.6667px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect3);fill:#000000" />
+    <path
+       style="fill:#00b90e;fill-opacity:0.68917376;fill-rule:evenodd;stroke:#000000;stroke-width:0.780654;stroke-dasharray:none;stroke-opacity:1"
+       id="path49-6"
+       sodipodi:type="arc"
+       sodipodi:cx="108.51944"
+       sodipodi:cy="272.04312"
+       sodipodi:rx="39.393345"
+       sodipodi:ry="18.897453"
+       sodipodi:start="0"
+       sodipodi:end="6.2768476"
+       sodipodi:open="true"
+       sodipodi:arc-type="arc"
+       d="m 147.91278,272.04312 a 39.393345,18.897453 0 0 1 -39.33092,18.89743 39.393345,18.897453 0 0 1 -39.455567,-18.83755 39.393345,18.897453 0 0 1 39.205897,-18.95712 39.393345,18.897453 0 0 1 39.5798,18.77748" />
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,59.153914,4.0282482)"
@@ -150,10 +170,10 @@
        style="font-size:26.6667px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect4);shape-padding:1.40984;fill:#000000"><tspan
          x="198.79883"
          y="53.344367"
-         id="tspan2">составитель </tspan><tspan
+         id="tspan1">составитель </tspan><tspan
          x="198.79883"
          y="86.677741"
-         id="tspan3">списка</tspan></text>
+         id="tspan48">списка</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:29.2868;fill:#000000;stroke-width:0.264583"
@@ -163,10 +183,10 @@
        transform="translate(15.262795,-51.234515)"><tspan
          x="70.161629"
          y="81.239784"
-         id="tspan4">выдать </tspan><tspan
+         id="tspan49">выдать </tspan><tspan
          x="70.161629"
          y="87.413404"
-         id="tspan5">списоек</tspan></text>
+         id="tspan50">списоек</tspan></text>
     <path
        style="fill:#52b900;fill-opacity:0.56038266;fill-rule:evenodd;stroke:#000000;stroke-width:0.564999;stroke-dasharray:none;stroke-opacity:1"
        id="path47"
@@ -187,10 +207,10 @@
        style="font-size:26.6667px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect9);fill:#000000"><tspan
          x="364.86914"
          y="364.96351"
-         id="tspan6">составитель </tspan><tspan
+         id="tspan51">составитель </tspan><tspan
          x="364.86914"
          y="398.29688"
-         id="tspan7">сообщений </tspan></text>
+         id="tspan52">сообщений </tspan></text>
     <text
        xml:space="preserve"
        style="font-size:9.87778px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke-width:0.538122"
@@ -210,10 +230,10 @@
        style="font-size:18.6667px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect6);fill:#000000"><tspan
          x="454.58984"
          y="228.15982"
-         id="tspan9">обновить </tspan><tspan
+         id="tspan53">обновить </tspan><tspan
          x="454.58984"
          y="251.49319"
-         id="tspan12">список</tspan></text>
+         id="tspan54">список</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:7.05556px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke-width:0.264583"
@@ -270,7 +290,20 @@
        style="font-size:18.6667px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect16);fill:#000000;stroke-width:5.9149607;stroke-dasharray:none"><tspan
          x="143.55469"
          y="256.07193"
-         id="tspan16">подключиться</tspan></text>
+         id="tspan55">подключиться</tspan></text>
+    <path
+       style="fill:#e0ff28;fill-opacity:0.53443325;fill-rule:evenodd;stroke:#000000;stroke-width:0.564999;stroke-dasharray:none;stroke-opacity:1"
+       id="path51"
+       sodipodi:type="arc"
+       sodipodi:cx="176.07834"
+       sodipodi:cy="157.81836"
+       sodipodi:rx="34.097713"
+       sodipodi:ry="27.762617"
+       sodipodi:start="0"
+       sodipodi:end="6.2768476"
+       sodipodi:open="true"
+       sodipodi:arc-type="arc"
+       d="m 210.17605,157.81836 a 34.097713,27.762617 0 0 1 -34.04369,27.76258 34.097713,27.762617 0 0 1 -34.15156,-27.67461 34.097713,27.762617 0 0 1 33.93546,-27.85027 34.097713,27.762617 0 0 1 34.25911,27.58635" />
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke-width:0.264583"
@@ -321,7 +354,7 @@
        style="font-size:24px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect27);fill:#000000"><tspan
          x="59.814453"
          y="434.33881"
-         id="tspan19">сервер</tspan></text>
+         id="tspan56">сервер</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke-width:0.264583"
@@ -356,10 +389,10 @@
        style="font-size:18.6667px;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect33);fill:#000000"><tspan
          x="344.00195"
          y="637.14419"
-         id="tspan20">выдать </tspan><tspan
+         id="tspan57">выдать </tspan><tspan
          x="344.00195"
          y="660.47757"
-         id="tspan21">команду</tspan></text>
+         id="tspan58">команду</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:50.7765;fill:#000000;stroke-width:0.264583"
@@ -369,10 +402,10 @@
        transform="translate(-19.02406,35.063956)"><tspan
          x="163.38312"
          y="182.03415"
-         id="tspan22">выдать список id-ов </tspan><tspan
+         id="tspan59">выдать список id-ов </tspan><tspan
          x="163.38312"
          y="188.20778"
-         id="tspan23">последних команд</tspan></text>
+         id="tspan60">последних команд</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:75.0732;fill:#000000;stroke-width:0.264583"
@@ -382,13 +415,13 @@
        transform="translate(-61.921453,47.000622)"><tspan
          x="145.47812"
          y="148.46228"
-         id="tspan25">проверка id-ов команд </tspan><tspan
+         id="tspan61">проверка id-ов команд </tspan><tspan
          x="145.47812"
          y="154.63592"
-         id="tspan27">(возвращает список </tspan><tspan
+         id="tspan62">(возвращает список </tspan><tspan
          x="145.47812"
          y="160.80955"
-         id="tspan28">невыполненных)</tspan></text>
+         id="tspan63">невыполненных)</tspan></text>
     <path
        style="fill:#5fbe4d;fill-opacity:0.76713926;fill-rule:evenodd;stroke:#000000;stroke-width:0.565;stroke-dasharray:none;stroke-opacity:1"
        id="path59"
@@ -432,10 +465,10 @@
        transform="translate(59.68333,30.587707)"><tspan
          x="108.17603"
          y="124.58894"
-         id="tspan30">сохранятор </tspan><tspan
+         id="tspan64">сохранятор </tspan><tspan
          x="108.17603"
          y="133.4084"
-         id="tspan31">на HD</tspan></text>
+         id="tspan65">на HD</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:27.0184;fill:#000000;stroke-width:0.264583"
@@ -445,10 +478,10 @@
        transform="translate(59.683329,27.603541)"><tspan
          x="91.390091"
          y="142.12093"
-         id="tspan34">загрузить </tspan><tspan
+         id="tspan66">загрузить </tspan><tspan
          x="91.390091"
          y="148.29456"
-         id="tspan35">из файла</tspan></text>
+         id="tspan67">из файла</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:24.0544;fill:#000000;stroke-width:0.264583"
@@ -458,10 +491,10 @@
        transform="translate(32.825832,-0.37302066)"><tspan
          x="123.46989"
          y="139.8828"
-         id="tspan36">дописать </tspan><tspan
+         id="tspan68">дописать </tspan><tspan
          x="123.46989"
          y="146.05643"
-         id="tspan39">в файл</tspan></text>
+         id="tspan69">в файл</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:51.5321;fill:#000000;stroke-width:0.265;stroke-dasharray:none"
@@ -471,10 +504,10 @@
        transform="translate(-1.4920837,8.9524993)"><tspan
          x="104.07281"
          y="106.68395"
-         id="tspan40">инициализировать </tspan><tspan
+         id="tspan70">инициализировать </tspan><tspan
          x="104.07281"
          y="112.85757"
-         id="tspan41">серверную часть</tspan></text>
+         id="tspan71">серверную часть</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:43.7534;fill:#000000;stroke-width:0.264583"
@@ -484,10 +517,10 @@
        transform="translate(0.74861952,5.5938391)"><tspan
          x="111.90624"
          y="68.635826"
-         id="tspan42">обновить данные </tspan><tspan
+         id="tspan72">обновить данные </tspan><tspan
          x="111.90624"
          y="74.809446"
-         id="tspan43">и командды</tspan></text>
+         id="tspan73">и командды</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke-width:0.264583"
@@ -559,19 +592,6 @@
        sodipodi:open="true"
        sodipodi:arc-type="arc"
        d="m 174.02876,100.80253 a 40.805458,37.451584 0 0 1 -40.74081,37.45154 40.805458,37.451584 0 0 1 -40.869906,-37.33286 40.805458,37.451584 0 0 1 40.611296,-37.569842 40.805458,37.451584 0 0 1 40.9986,37.213802" />
-    <path
-       style="fill:#b9009e;fill-opacity:0;fill-rule:evenodd;stroke:#000000;stroke-width:0.564999;stroke-dasharray:none;stroke-opacity:1"
-       id="path51"
-       sodipodi:type="arc"
-       sodipodi:cx="176.07834"
-       sodipodi:cy="157.81836"
-       sodipodi:rx="34.097713"
-       sodipodi:ry="27.762617"
-       sodipodi:start="0"
-       sodipodi:end="6.2768476"
-       sodipodi:open="true"
-       sodipodi:arc-type="arc"
-       d="m 210.17605,157.81836 a 34.097713,27.762617 0 0 1 -34.04369,27.76258 34.097713,27.762617 0 0 1 -34.15156,-27.67461 34.097713,27.762617 0 0 1 33.93546,-27.85027 34.097713,27.762617 0 0 1 34.25911,27.58635" />
     <path
        style="fill:#b9009e;fill-opacity:0;fill-rule:evenodd;stroke:#000000;stroke-width:0.564999;stroke-dasharray:none;stroke-opacity:1"
        id="path52"
@@ -670,13 +690,6 @@
        x="142.46942"
        y="27.297413" />
     <rect
-       style="fill:#00ff00;fill-opacity:0;fill-rule:evenodd;stroke:#8ffc00;stroke-width:0.374267;stroke-dasharray:none;stroke-opacity:1"
-       id="rect52-47"
-       width="24.958452"
-       height="10.425005"
-       x="154.87521"
-       y="136.46619" />
-    <rect
        style="fill:#00ff00;fill-opacity:0;fill-rule:evenodd;stroke:#8ffc00;stroke-width:0.429165;stroke-dasharray:none;stroke-opacity:1"
        id="rect52-7"
        width="27.139469"
@@ -719,19 +732,6 @@
        height="12.938886"
        x="78.450531"
        y="259.73111" />
-    <path
-       style="fill:#b9009e;fill-opacity:0;fill-rule:evenodd;stroke:#000000;stroke-width:0.780654;stroke-dasharray:none;stroke-opacity:1"
-       id="path49-6"
-       sodipodi:type="arc"
-       sodipodi:cx="108.51944"
-       sodipodi:cy="272.04312"
-       sodipodi:rx="39.393345"
-       sodipodi:ry="18.897453"
-       sodipodi:start="0"
-       sodipodi:end="6.2768476"
-       sodipodi:open="true"
-       sodipodi:arc-type="arc"
-       d="m 147.91278,272.04312 a 39.393345,18.897453 0 0 1 -39.33092,18.89743 39.393345,18.897453 0 0 1 -39.455567,-18.83755 39.393345,18.897453 0 0 1 39.205897,-18.95712 39.393345,18.897453 0 0 1 39.5798,18.77748" />
     <text
        xml:space="preserve"
        style="font-size:4.9389px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:51.5321;display:inline;fill:#000000;stroke-width:0.265;stroke-dasharray:none"
@@ -741,7 +741,7 @@
        transform="translate(-18.7483,50.179052)"><tspan
          x="104.07281"
          y="106.68395"
-         id="tspan44">узнать свой ip</tspan></text>
+         id="tspan74">узнать свой ip</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:7.05556px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:40.5811;fill:#000000;stroke-width:0.264583"
@@ -751,10 +751,10 @@
        transform="translate(4.8444836,4.0991784)"><tspan
          x="82.280197"
          y="164.65118"
-         id="tspan45">узнаватель </tspan><tspan
+         id="tspan75">узнаватель </tspan><tspan
          x="82.280197"
          y="173.47062"
-         id="tspan46">своего ip</tspan></text>
+         id="tspan76">своего ip</tspan></text>
     <rect
        style="fill:#00ff00;fill-opacity:0;fill-rule:evenodd;stroke:#8ffc00;stroke-width:0.370317;stroke-dasharray:none;stroke-opacity:1"
        id="rect52-8-7"

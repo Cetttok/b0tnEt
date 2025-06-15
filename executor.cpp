@@ -1,5 +1,4 @@
 #include "executor.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
@@ -8,36 +7,36 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-
-const int REACTION_TIME = 100;
-const int SHARED_MEMORY_NAME_SIZE = 20;
+// да тут много инклудов
+const int REACTION_TIME = 100; // фиг знает можно убрать. Но пофиг
+const int SHARED_MEMORY_NAME_SIZE = 20; // длина указателя на память. Не должно быть одинаковых
 using namespace std;
-Executor::Executor() {}
-
+Executor::Executor(int seed) {
+    srand(seed);
+}
 Executor::~Executor()
 {
     if (!_commandList.empty()){
-        for (const auto& [id, command] : _commandList){
-            stopExecuting(id);
+        for (auto& pair : _commandList){
+            stopExecuting(pair.first, true);
             if (_commandList.empty()){
                 break;
             }
+            continue;
         }
     }
+    _commandList.clear();
 }
 
 void Executor::startExecute(std::string command, int id)
 {
     Command * newCommand =  new Command(command);
-    std::cout << "funjny day" << endl;
     std::thread * newThread = new std::thread(&Command::execute, newCommand);
     _commandList.insert(std::make_pair(id , new ExecutingCommand(newCommand, newThread)));
-    //_commandList.push_back(newCommand);
 }
 
-int Executor::getLastExecutedId()
+int Executor::getFirstExecutedId()
 {
-    //std::this_thread::sleep_for(std::chrono::microseconds(REACTION_TIME));
     if (!_commandList.empty()){
         for (const auto& [id, command] : _commandList){
 
@@ -46,22 +45,25 @@ int Executor::getLastExecutedId()
                 return id;
             }
         }
+        return 0;
     }
     else{
-        return -1;
+        return 0;
     }
-    return 0;
+
 }
 
 
-bool Executor::stopExecuting(int id)
+bool Executor::stopExecuting(int id, bool isIterator)
 {
     if (_commandList.count(id) == 1){
 
         _commandList[id ]->stop();
         _commandList[id]->mThread->join();
-        delete _commandList[id];
-        _commandList.erase(id);
+        if (!isIterator){
+            delete _commandList[id];
+            _commandList.erase(id);
+        }
         return true;
     }
     else{
@@ -74,14 +76,10 @@ bool Executor::stopExecuting(int id)
 
 Command::Command(std::string command):mCommand(command)
 {
-    _shmName = generateSharedMemoryName(time(0));
-    std::cout << _shmName << std::endl;
-    // Создаем разделяемую память
+    _shmName = generateSharedMemoryName(); // индификатор
     int shm_fd = shm_open(_shmName.data(), O_CREAT | O_RDWR, 0666);
-    ftruncate(shm_fd, sizeof(bool)); // Устанавливаем размер разделяемой памяти
-
-    // Отображаем разделяемую память в адресное пространство процесса
-    pState = (bool*)mmap(0, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    ftruncate(shm_fd, sizeof(bool));
+    pState = (bool*)mmap(0, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0); // эм длинная комманды. Вообщем нужна она.
     *pState = true;
 
 }
@@ -91,27 +89,23 @@ void Command::execute()
     pid_t c_pid = fork();
 
     if (c_pid > 0) {
-        //  wait(nullptr);
-        // cout << "printed from parent process " << getpid()
-        //      << endl;
-        //system(command->mCommand.data());
         while(*pState){
-            std::this_thread::sleep_for(std::chrono::microseconds(REACTION_TIME));
             if (!(kill(c_pid, 0) == 0)){
-                *pState= false;
-                std::cout <<  "enter"<<std::endl;
+                *pState= false;// на всякий случай. Он уже должным быть false
                 return;
             }
+
+            std::this_thread::sleep_for(std::chrono::microseconds(REACTION_TIME)); // можно убрать. Тут зависит нужен ли пустой бесконечный цикл
         }
-        system((std::string ("kill ") + std::to_string(c_pid)).data());
+
+        kill(c_pid,9);
         wait(nullptr);
-        *pState = false;
+        *pState = false; // на всякий случай. Он уже должным быть false
     }
     else if (c_pid == 0){
-        system(mCommand.data());
-        std::cout << "plkil" << *pState<< std::endl;
+        execlp("/bin/bash", "bash", "-c", mCommand.c_str(), (char*)nullptr);
+        // гениально чтобы запустить можно было
         *pState= false;
-        std::cout << "plkil" << *pState<< std::endl;
 
     }
 }
@@ -122,9 +116,9 @@ Command::~Command()
     shm_unlink(_shmName.data());
 }
 
-string Command::generateSharedMemoryName(int seed)
+std::string Command::generateSharedMemoryName()
 {
-    srand(seed);
+
     std::string result = "/";
     for (int i = 0; i < SHARED_MEMORY_NAME_SIZE; i++){
         result+=char((rand()%25)+97);
