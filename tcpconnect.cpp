@@ -1,6 +1,8 @@
 #include "tcpconnect.h"
-const int BUFFER_SIZE = 256;
-const int CHECK_BUFFER_SIZE = 16;
+#include <thread>
+const int BUFFER_SIZE = 512;
+const int CHECK_BUFFER_SIZE = 2;
+const int WAIT_BEFORE_CHECK_BUFFER = 3000; //в одной микросекунде 1000 милисекунд ms. микросекунд 3 ms. Для локальной сети 0.25. Для другово соединения сильно завистит от сайта. 10 примерно
 TcpConnect::TcpConnect(std::string ipAddress, const int port):mServerAddress()
 {
     mSocket= socket(AF_INET, SOCK_STREAM, 0);
@@ -31,11 +33,14 @@ bool TcpConnect::fixConnection()
 
 }
 
-std::string TcpConnect::recieveAnswer(std::string message)
+std::string TcpConnect::recieveAnswer(std::string message, int waitTime)
 {
     sendMessage(message); // отправить запрос
     //sleep(1);
     // char answer[BUFFER_SIZE];
+    if (waitTime != 0){
+        std::this_thread::sleep_for(std::chrono::microseconds(waitTime));//альернативная задердка. Старая версия
+    }
     return readSocket(); //ждать и прочитать ответ
 
 }
@@ -62,6 +67,7 @@ std::string TcpConnect::readSocket()
     do{ // подождать дату и прочитать буфером
         int bytesRecived = recv(mSocket, buffer, sizeof(buffer), 0);
         result.append(buffer,bytesRecived);
+        std::this_thread::sleep_for(std::chrono::microseconds(WAIT_BEFORE_CHECK_BUFFER)); // чтобы читать всю инфорамцию.
     }
     while(recv(mSocket, checkBuffer, CHECK_BUFFER_SIZE, MSG_PEEK | MSG_DONTWAIT)>0); // продолжить если в сокете еще что то есть (проверка на наличие данных)
     return result;
