@@ -8,11 +8,16 @@ const char IP_PORT_DELIMER = ':';
 
 const char * FILE_FOR_IP_NAME = "ipaddr.txt";
 const char * FILE_FOR_COMMAND_ID_NAME =  "idcommands.txt";
+const char * COMMANDS_DIRECORY = "commands";
+
+const char * COMMAND_END_NAME = "_c.txt";
+const int COMMAND_READ_BUFFER = 32;
 
 Saver * Saver::_saver = nullptr;
 Saver::Saver() {
      _countHostInFile = recountHostsInFile();
      _countCommandIdInFile = recountCommandIdInFile();
+     std::filesystem::create_directories(COMMANDS_DIRECORY);
 }
 
 Saver::~Saver() {
@@ -62,7 +67,7 @@ int Saver::recountHostsInFile()
 int Saver::recountCommandIdInFile()
 {
     int countId = 0;
-    FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r+");
+    FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r");
     if (file == nullptr){
         createFile(FILE_FOR_COMMAND_ID_NAME);
         return 0;
@@ -80,6 +85,48 @@ int Saver::recountCommandIdInFile()
     fclose(file);
     return countId;
 
+}
+
+std::string Saver::getCommandById(int id)
+{
+    FILE * file = fopen(genFileNameFromCommandId(id).c_str(), "r");
+
+    if (file == nullptr){
+        std::cout << "Saver. No file for id - " << id << " or simple cant open this file." << std::endl;
+        return "";
+    }
+
+    std::string result = "";
+
+    char lineBuffer[COMMAND_READ_BUFFER]; // Буфер для хранения строки
+    while(fgets(lineBuffer, COMMAND_READ_BUFFER, file)!=nullptr) {
+        result.append(lineBuffer,COMMAND_READ_BUFFER);
+    }
+
+    fclose(file);
+    return result;
+
+}
+
+std::string Saver::genFileNameFromCommandId(int id)
+{
+    return std::string(COMMANDS_DIRECORY) + "/" + std::to_string(id) + COMMAND_END_NAME;
+}
+
+int Saver::parseCommandIdFromFileName(std::string filename)
+{
+    std::string stringWithInt = filename.substr(0,filename.find(COMMAND_END_NAME));
+    if (stringWithInt.find("/")!=stringWithInt.npos){
+        stringWithInt = stringWithInt.substr(stringWithInt.find("/")+1,stringWithInt.size() - stringWithInt.find("/"));
+    }
+    try{
+        int result = std::stoi(stringWithInt);
+        return result;
+    }
+    catch(std::invalid_argument){
+        std::cout << "Svaer. Warn! Cant parse id from " << stringWithInt << std::endl;
+        return 0;
+    }
 }
 
 
@@ -183,6 +230,37 @@ int Saver::readCommandsIdFromFile(int *result, int size)
     }
     fclose(file);
     return lineCount;
+}
+
+std::map<int, std::string> Saver::loadCommands()
+{
+    std::string path = COMMANDS_DIRECORY;
+    std::map<int, std::string> result;
+    for (const auto & entry : std::filesystem::directory_iterator(path)){
+
+        int id = parseCommandIdFromFileName(entry.path());
+        if (id!=0){
+            result[id] = getCommandById(id);
+        }
+    }
+    return result;
+}
+
+bool Saver::clearCommandOnDisk(int id)
+{
+    if(remove(genFileNameFromCommandId(id).c_str())==0){
+        return true;
+    }
+    else{
+        std::cout << "Saver. Cant clear command! id - " << id <<std::endl;
+        return false;
+    }
+
+}
+
+void Saver::saveCommandOnDisk(std::string command, int id)
+{
+    rewriteFile(genFileNameFromCommandId(id),command);
 }
 
 Host::Host(std::string ip, int port):_ip(ip), _port(port)
