@@ -1,136 +1,232 @@
 #include "saver.h"
 
 
-FILE* file_for_ip=0;
-FILE* id_file=0;
-int num_savers=0;
+const int MAX_IP_ADDRES_LEN = 23;
+const int MAX_COMMAND_ID_LEN = 10; // установил случайно
+const int MIN_HOST_SIZE = 9;
+const char IP_PORT_DELIMER = ':';
 
-saver::saver() {
-	num_savers++;
-	if (0 == file_for_ip) {
-        file_for_ip=fopen(file_name_for_ip, "ab+");
-		if (0 == file_for_ip) {
-			_abort();
-		}
-	}
-	if (0 == id_file) {
-		id_file=fopen(file_for_id_name, "ab+");
-		if (0 == id_file) {
-			_abort();
-		}
-	}
+const char * FILE_FOR_IP_NAME = "ipaddr.txt";
+const char * FILE_FOR_COMMAND_ID_NAME =  "idcommands.txt";
+
+Saver * Saver::_saver = nullptr;
+Saver::Saver() {
+     _countHostInFile = recountHostsInFile();
+     _countCommandIdInFile = recountCommandIdInFile();
 }
 
-saver::~saver() {
-	num_savers--;
-	if (num_savers==0) {
-		if (file_for_ip) {
-			fclose(file_for_ip);
-			file_for_ip = 0;
-		}
-		if (id_file) {
-			fclose(id_file);
-			id_file = 0;
-		}
-	}
+Saver::~Saver() {
+
 }
 
-unsigned int saver::ip_write(int n, const char* b) {
-	char*b2;
-	unsigned int n_res;
-	int len2 = (max_ip_len + 2)*n, i2 = -1, i = 1, iter = 0, d = 0, j, nd = 0;
-	if (n < 1)_abort();
-	if (b2 = (char*)malloc(len2)) {
-		while (d < n) {
-			if (i >= len2)_abort();
-			if ((b[i] == '.') || (b[i] == '\n')) {
-				for (j = 4 - i + i2; j > 0; j--) {
-					b2[iter] = '0';
-					iter++;
-				}
-				for (j = 1; j < i - i2; j++) {
-					b2[iter] = b[i2 + j];
-					iter++;
-				}
-				if (b[i] == '\n') {
-					b2[iter] = '\r';
-					d++;
-					iter++;
-				}
-				else nd++;
-				b2[iter] = b[i];
-				iter++;
-				i2 = i;
-				i++;
-			}
-			i++;
-		}
-		n_res = (unsigned int)fwrite(b2, 1, len2, file_for_ip);
-		free(b2);
-		if (nd % 3 || nd / 3 != n)_abort();
-		return(n_res);
-	}
-	else _abort();
-	return 0;
+void Saver::rewriteFile(std::string fileName, std::string data)
+{
+    FILE * _file = fopen(fileName.c_str(), "w");// плохо на запись чтение открывается
+    if (nullptr == _file) {
+        std::cout << "Saver. cant write to file " <<fileName << std::endl;
+    }
+    fprintf(_file,"%s", data.c_str());
+    fclose(_file);
 }
 
-unsigned int saver::ip_write(const char* b, int l) {
-	int n = 0;
-	for (int i = 7; i < l; i++) {
-		if (b[i] == '\n') {
-			n++;
-			i = i + 7;
-		}
-		else if (b[i] == 0)break;
-	}
-	return(ip_write(n, b));
+void Saver::createFile(std::string fileName)
+{
+    FILE * file = fopen(fileName.c_str(), "w");
+    fclose(file);
 }
 
-unsigned int saver::ip_read(int num_ip, char* buffer) {
-	if (num_ip < 1)_abort();
-	int len2 = (max_ip_len + 2)*num_ip;
-	char* b2 = (char*)malloc(len2 + 1);
-	fseek(file_for_ip, 0, SEEK_END);
-	if (ftell(file_for_ip) >= len2) fseek(file_for_ip, -len2, SEEK_END);
-	else fseek(file_for_ip, 0, SEEK_SET);
-	unsigned int res = (unsigned int)fread(b2, 1, len2, file_for_ip),
-		i = 0,
-		j = 0,
-		n = 0;
-	for (i = 0; i < res; i++) {
-		if (b2[i] == '\r') {
-			i++;
-			n++;
-		}
-		if ((buffer[j] = b2[i]) == '.') {
-			if (b2[i + 1] == '0')i++;
-			if (b2[i + 1] == '0')i++;
-		}
-		j++;
-	}
-	buffer[j] = 0;
-	free(b2);
-	return(n);
+
+int Saver::recountHostsInFile()
+{
+    int countIp = 0;
+
+    FILE * file = fopen(FILE_FOR_IP_NAME, "r+");
+    if (file == nullptr){
+        createFile(FILE_FOR_IP_NAME);
+        return 0;
+    }
+    char lineBuffer[MAX_IP_ADDRES_LEN]; // Буфер для хранения строки
+    while(fgets(lineBuffer, MAX_IP_ADDRES_LEN, file)!=nullptr) {
+        std::string line(lineBuffer);
+        if (line != "" && line.size() >= 9){
+            countIp++;
+        }
+        else{
+            break;
+        }
+    }
+    fclose(file);
+    return countIp;
+
+}
+int Saver::recountCommandIdInFile()
+{
+    int countId = 0;
+    FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r+");
+    if (file == nullptr){
+        createFile(FILE_FOR_COMMAND_ID_NAME);
+        return 0;
+    }
+    char lineBuffer[MAX_COMMAND_ID_LEN]; // Буфер для хранения строки
+    while(fgets(lineBuffer, MAX_COMMAND_ID_LEN, file)!=nullptr) {
+        std::string line(lineBuffer);
+        if (line != ""){
+            countId++;
+        }
+        else{
+            break;
+        }
+    }
+    fclose(file);
+    return countId;
+
 }
 
-void saver::write_id(int n, unsigned int* list) {
-	if (n < 1)_abort();
-	fseek(id_file, 0, SEEK_END);
-	for (int i = 0; i < n; i++)
-		if (EOF == fprintf(id_file, "%08X\r\n", list[i]))_abort();
-	fflush(id_file);
+
+
+Saver * Saver::getSaver()
+{
+    if (_saver == nullptr){
+        _saver = new Saver(); //суть паттерна одиночка может быть только один обьект
+    }
+    return _saver;
+
 }
 
-unsigned int saver::read_id(int n, unsigned int* list) {
-	if (n < 1)_abort();
-	char* b2 = (char*)malloc((len_id + 2)*n);
-	int len2 = (len_id + 2)*n;
-	fseek(id_file, -len2, SEEK_END);
-	unsigned int res = (unsigned int)fread(b2, 1, len2, id_file), i;
-	for (i = 0; i < res / (len_id + 2); i++) {
-		if (!sscanf(&b2[i*(len_id + 2)], "%8X", &list[i]))
-			_abort();
-	}
-	free(b2);
-	return(i);
+int Saver::countCommandIdInFile() const
+{
+    return _countCommandIdInFile;
+}
+//стандартный гетер
+int Saver::countHostInFile() const
+{
+    return _countHostInFile;
+}
+
+
+
+void Saver::writeHostsToFile(Host *list, int size)
+{
+    std::string dataToFile = "";
+    for (int i = 0; i < size; i++){
+        dataToFile+= list[i].toString() + "\n";
+    }
+    rewriteFile(FILE_FOR_IP_NAME, dataToFile);
+    _countHostInFile = size;
+}
+
+int Saver::readHostsFromFile(Host *result, int size)
+{
+    if (size != _countHostInFile){
+        std::cout << "Saver:Warning! invalid ip count" << std::endl;
+        size = _countHostInFile; // нужно ли это????
+    }
+    FILE * file = fopen(FILE_FOR_IP_NAME, "r");
+
+    char lineBuffer[MAX_IP_ADDRES_LEN]; // Буфер для хранения строки
+    int lineCount = 0;
+    for(int lineCount = 0; lineCount < size; lineCount++) {
+        if(fgets(lineBuffer, MAX_IP_ADDRES_LEN, file)==nullptr){
+            std::cout << "Saver:Warning! file is end, but count not done";
+            break;
+        }
+        std::string line(lineBuffer);
+        if (line != "" && line.size() >= MIN_HOST_SIZE){ //последняя строка пустая
+            result[lineCount] = Host(line); // Host сам парсит себя
+        }
+        else{
+            break;
+        }
+    }
+    fclose(file);
+    return lineCount;
+
+}
+
+void Saver::writeCommandsIdToFile(int *list, int size)
+{
+
+    std::string dataToFile = "";
+    for (int i = 0 ; i < size; i ++){
+        dataToFile += std::to_string(list[i]) +  "\n";
+    }
+    rewriteFile(FILE_FOR_COMMAND_ID_NAME, dataToFile);
+}
+
+int Saver::readCommandsIdFromFile(int *result, int size)
+{
+    if (size != _countCommandIdInFile){
+        std::cout << "Saver:Warning! invalid command id count" << std::endl;
+        size = _countCommandIdInFile;
+    }
+    FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r");
+
+    char lineBuffer[MAX_COMMAND_ID_LEN]; // Буфер для хранения строки
+    int lineCount = 0;
+    for(int lineCount = 0; lineCount < size; lineCount++) {
+        if(fgets(lineBuffer, MAX_COMMAND_ID_LEN, file)==nullptr){
+            std::cout << "Saver:Warning! file is end, but count not done";
+            break;
+        }
+        std::string line(lineBuffer);
+        if (line != "" ){ //последняя строка пустая
+            try {
+                result[lineCount] = std::stoi(line);
+            } catch (std::invalid_argument) {
+                std::cout << "Saver. cant convert to int. badId '" << line << "'" << std::endl;
+                break;
+            }
+        }
+        else{
+            break;
+        }
+    }
+    fclose(file);
+    return lineCount;
+}
+
+Host::Host(std::string ip, int port):_ip(ip), _port(port)
+{// зачем этот конструктор
+    //существует
+}
+
+Host::Host(std::string parseFrom)
+{
+    try{
+        if (parseFrom.find("\n")!=parseFrom.npos){
+            parseFrom = parseFrom.substr(0,parseFrom.find("\n"));
+        }
+        int positionOfDelimer  = parseFrom.find(IP_PORT_DELIMER);
+        if (positionOfDelimer == parseFrom.npos){
+            std::cout << "Host. No delimer in string ("<<IP_PORT_DELIMER<<")" << " from '" << parseFrom <<"'"<< std::endl;
+            return;
+        }
+
+        _port = std::stoi(parseFrom.substr(positionOfDelimer+1, parseFrom.size()-positionOfDelimer));
+        _ip = parseFrom.substr(0, positionOfDelimer);
+
+    }
+    catch (std::invalid_argument) {
+        std::cout << "Host. Error while parsing port (to int)" << std::endl;
+        }
+
+}
+
+Host::Host()
+{
+}
+
+std::string Host::ip() const
+{
+    return _ip;
+}
+
+int Host::port() const
+{
+    return _port;
+}
+
+std::string Host::toString()
+{
+    return _ip + ":" + std::to_string(_port);
 }

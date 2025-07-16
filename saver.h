@@ -3,42 +3,55 @@
 #include<stdio.h>
 #undef _CRT_SECURE_NO_WARNINGS
 #include<stdlib.h>
+#include <string>
+#include <iostream>
 
-#define file_name_for_ip "ipaddr.txt"
-#define file_for_id_name "idescommands.txt"
-#define max_ip_len 15
-#define len_id 8
-#define _abort() {printf("crash this programm");abort();}
-
-
-extern FILE* file_for_ip;
-extern FILE* id_file;
-extern int num_savers;
-
-class saver {
+class Host// класс стьруктура с методами парсинга и вывода
+{
 public:
-	saver();
-	~saver();
+    Host(std::string ip, int port);
+    Host(std::string parseFrom); // парсит из строки вида <ip>:<port>
+    Host();
 
-	// num_ip - количество ip адресов
-	// возвращает количество успешно записанных символов
-	unsigned int ip_write(int num_ip, const char* buffer);
+    std::string ip() const;
+    int port() const;
 
-	// str_len - длина строки содержащей ip адреса
-	// возвращает количество успешно записанных символов
-	unsigned int ip_write(const char* buffer, int str_len);
+    std::string toString(); // возвращавет строку вида <ip>:<port>
+private:
+    std::string _ip = "0.0.0.0";
+    int _port = 0 ;
+};
 
-	// num_ip - количество ip адресов
-	// длина buffer должна быть >= (max_ip_len+1)*num_ip+1
-	// возвращает количество успешно считанных ip адресов
-	unsigned int ip_read(int num_ip, char* buffer);
+//класс который позволяет хранить списки хостов и id команд на диске.
+//даже читать их может
+/*
+как пример:
+Saver * save = Saver::getSaver();
+Host hosts[save.countHostInFile()];
+save.readHostsFromFile(hosts,save.countHostInFile());
 
+ */
+class Saver {
+public:
+    static Saver *getSaver();// создание только через него
+    int countCommandIdInFile() const;
+    int countHostInFile() const;
+    void writeHostsToFile(Host *list, int size);
+    int readHostsFromFile(Host *result, int size); //size должен быть = countHostInFile();
+    void writeCommandsIdToFile(int* list, int size);
+    int readCommandsIdFromFile(int* result,int size); // size должен быть = countCommandIdInFile();
+private:
+    static  Saver * _saver;
+    Saver();// да я все таки переименовал этот класс
+    ~Saver();
 
-	// num_id - количество id-OB
-	void write_id(int num_id, unsigned int* list);
+    void rewriteFile(std::string fileName, std::string data);
+    void createFile(std::string fileName);
 
-	// num_id - количество id-OB
-	// возвращает количество успешно считанных id
-	unsigned int read_id(int num_id, unsigned int* list);
+    int recountHostsInFile(); // методы вызываемые в конструкторе чтобы прочитать файл и перестчитать их
+    int recountCommandIdInFile();
+
+    int _countHostInFile; // эти параметры обновляются при записи в файл.
+    int _countCommandIdInFile;
 };
 
