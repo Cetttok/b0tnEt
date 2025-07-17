@@ -1,5 +1,6 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
+#include <atomic>
 #include <map>
 #include <string>
 #include <thread>
@@ -24,9 +25,11 @@ public:
     ~Command(); // освобождет память
     std::string mCommand;
     bool  * pState = nullptr;
+    bool isDone() const;
 private:
     std::string _shmName;
     std::string generateSharedMemoryName();// sharing память имеет инлефикатор. Генерирует его
+    std::atomic<bool> _completed{false};
 };
 class ExecutingCommand
 {

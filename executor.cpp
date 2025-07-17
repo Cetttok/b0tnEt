@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+
 // да тут много инклудов
 const int REACTION_TIME = 100; // фиг знает можно убрать. Но пофиг
 const int SHARED_MEMORY_NAME_SIZE = 20; // длина указателя на память. Не должно быть одинаковых
@@ -30,9 +31,14 @@ Executor::~Executor()
 
 void Executor::startExecute(std::string command, int id)
 {
-    Command * newCommand =  new Command(command);
-    std::thread * newThread = new std::thread(&Command::execute, newCommand);
-    _commandList.insert(std::make_pair(id , new ExecutingCommand(newCommand, newThread)));
+    if (_commandList.find(id) == _commandList.end()){
+        Command * newCommand =  new Command(command);
+        std::thread * newThread = new std::thread(&Command::execute, newCommand);
+        _commandList.insert(std::make_pair(id , new ExecutingCommand(newCommand, newThread)));
+    }
+    else{
+        std::cout << "Executor. Warn! Cant start command becouse it already executing" << std::endl;
+    }
 }
 
 int Executor::getFirstExecutedId()
@@ -40,7 +46,7 @@ int Executor::getFirstExecutedId()
     if (!_commandList.empty()){
         for (const auto& [id, command] : _commandList){
 
-            if (!*command->mCommand->pState){
+            if (command->mCommand->isDone()){
                 stopExecuting(id);
                 return id;
             }
@@ -92,7 +98,7 @@ void Command::execute()
         while(*pState){
             if (!(kill(c_pid, 0) == 0)){
                 *pState= false;// на всякий случай. Он уже должным быть false
-                return;
+
             }
 
             std::this_thread::sleep_for(std::chrono::microseconds(REACTION_TIME)); // можно убрать. Тут зависит нужен ли пустой бесконечный цикл
@@ -108,12 +114,19 @@ void Command::execute()
         *pState= false;
 
     }
+    *pState= false;
+    _completed.store(true, std::memory_order_release);
+
 }
 
 Command::~Command()
 {
     munmap(pState, sizeof(bool));
     shm_unlink(_shmName.data());
+}
+
+bool Command::isDone() const {
+    return !_completed.load(std::memory_order_acquire);
 }
 
 std::string Command::generateSharedMemoryName()

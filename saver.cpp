@@ -1,8 +1,8 @@
 #include "saver.h"
+#include <fstream>
 
-
-const int MAX_IP_ADDRES_LEN = 23;
-const int MAX_COMMAND_ID_LEN = 10; // установил случайно
+//const int MAX_IP_ADDRES_LEN = 23;
+//const int MAX_COMMAND_ID_LEN = 10; // установил случайно
 const int MIN_HOST_SIZE = 9;
 const char IP_PORT_DELIMER = ':';
 
@@ -10,8 +10,8 @@ const char * FILE_FOR_IP_NAME = "ipaddr.txt";
 const char * FILE_FOR_COMMAND_ID_NAME =  "idcommands.txt";
 const char * COMMANDS_DIRECORY = "commands";
 
-const char * COMMAND_END_NAME = "_c.txt";
-const int COMMAND_READ_BUFFER = 32;
+const char * COMMAND_END_NAME = "_c.txt"; // типо <id>_c.txt
+//const int COMMAND_READ_BUFFER = 32; перешел на новую систему считывания теперь тут не нужен буфер
 
 Saver * Saver::_saver = nullptr;
 Saver::Saver() {
@@ -26,18 +26,27 @@ Saver::~Saver() {
 
 void Saver::rewriteFile(std::string fileName, std::string data)
 {
-    FILE * _file = fopen(fileName.c_str(), "w");// плохо на запись чтение открывается
-    if (nullptr == _file) {
-        std::cout << "Saver. cant write to file " <<fileName << std::endl;
+    std::ofstream out;          // поток для записи
+    out.open(fileName);      // открываем файл для записи
+    if (out.is_open())
+    {
+        out << data;
     }
-    fprintf(_file,"%s", data.c_str());
-    fclose(_file);
+    else{
+        std::cout << "Saver. Cant rewrite file" << std::endl;
+    }
+    out.close();
+    // FILE * _file = fopen(fileName.c_str(), "w");// плохо на запись чтение открывается
+    // if (nullptr == _file) {
+    //     std::cout << "Saver. cant write to file " <<fileName << std::endl;
+    // }
+    // fprintf(_file,"%s", data.c_str());
+    // fclose(_file);
 }
 
 void Saver::createFile(std::string fileName)
 {
-    FILE * file = fopen(fileName.c_str(), "w");
-    fclose(file);
+    rewriteFile(fileName,"");
 }
 
 
@@ -45,65 +54,118 @@ int Saver::recountHostsInFile()
 {
     int countIp = 0;
 
-    FILE * file = fopen(FILE_FOR_IP_NAME, "r+");
-    if (file == nullptr){
+    int countId = 0;
+    std::string line = "";
+    std::ifstream in(FILE_FOR_IP_NAME);
+    if (in.is_open())
+    {
+        while (std::getline(in, line))
+        {
+            if (line != "" && line.size() >= 9){
+                countIp++;
+            }
+            else{
+                break;
+            }
+        }
+    }
+    else{
         createFile(FILE_FOR_IP_NAME);
         return 0;
     }
-    char lineBuffer[MAX_IP_ADDRES_LEN]; // Буфер для хранения строки
-    while(fgets(lineBuffer, MAX_IP_ADDRES_LEN, file)!=nullptr) {
-        std::string line(lineBuffer);
-        if (line != "" && line.size() >= 9){
-            countIp++;
-        }
-        else{
-            break;
-        }
-    }
-    fclose(file);
+    in.close();
+
+
+    // FILE * file = fopen(FILE_FOR_IP_NAME, "r+");
+    // if (file == nullptr){
+    //     createFile(FILE_FOR_IP_NAME);
+    //     return 0;
+    // }
+    // char lineBuffer[MAX_IP_ADDRES_LEN]; // Буфер для хранения строки
+    // while(fgets(lineBuffer, MAX_IP_ADDRES_LEN, file)!=nullptr) {
+    //     std::string line(lineBuffer);
+    //     if (line != "" && line.size() >= 9){
+    //         countIp++;
+    //     }
+    //     else{
+    //         break;
+    //     }
+    // }
+    // fclose(file);
     return countIp;
 
 }
 int Saver::recountCommandIdInFile()
 {
     int countId = 0;
-    FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r");
-    if (file == nullptr){
+    std::string line = "";
+    std::ifstream in(FILE_FOR_COMMAND_ID_NAME);
+    if (in.is_open())
+    {
+        while (std::getline(in, line))
+        {
+            if (line != ""){
+                countId++;
+            }
+            else{
+                break;
+            }
+        }
+    }
+    else{
         createFile(FILE_FOR_COMMAND_ID_NAME);
         return 0;
     }
-    char lineBuffer[MAX_COMMAND_ID_LEN]; // Буфер для хранения строки
-    while(fgets(lineBuffer, MAX_COMMAND_ID_LEN, file)!=nullptr) {
-        std::string line(lineBuffer);
-        if (line != ""){
-            countId++;
-        }
-        else{
-            break;
-        }
-    }
-    fclose(file);
+    in.close();
+
+    // FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r");
+    // if (file == nullptr){
+    //     createFile(FILE_FOR_COMMAND_ID_NAME);
+    //     return 0;
+    // }
+    // char lineBuffer[MAX_COMMAND_ID_LEN]; // Буфер для хранения строки
+    // while(fgets(lineBuffer, MAX_COMMAND_ID_LEN, file)!=nullptr) {
+    //     std::string line(lineBuffer);
+    //     if (line != ""){
+    //         countId++;
+    //     }
+    //     else{
+    //         break;
+    //     }
+    // }
+    // fclose(file);
+    //
     return countId;
 
 }
 
 std::string Saver::getCommandById(int id)
 {
-    FILE * file = fopen(genFileNameFromCommandId(id).c_str(), "r");
-
-    if (file == nullptr){
-        std::cout << "Saver. No file for id - " << id << " or simple cant open this file." << std::endl;
-        return "";
-    }
-
+    //FILE * file = fopen(genFileNameFromCommandId(id).c_str(), "r");
     std::string result = "";
-
-    char lineBuffer[COMMAND_READ_BUFFER]; // Буфер для хранения строки
-    while(fgets(lineBuffer, COMMAND_READ_BUFFER, file)!=nullptr) {
-        result.append(lineBuffer,COMMAND_READ_BUFFER);
+    std::string line = "";
+    std::ifstream in(genFileNameFromCommandId(id).c_str());
+    if (in.is_open())
+    {
+        while (std::getline(in, line))
+        {
+            result+= line;
+        }
     }
+    in.close();
+    // if (file == nullptr){
+    //     std::cout << "Saver. No file for id - " << id << " or simple cant open this file." << std::endl;
+    //     return "";
+    // }
 
-    fclose(file);
+
+    // char lineBuffer[COMMAND_READ_BUFFER]; // Буфер для хранения строки
+    // while(fgets(lineBuffer, COMMAND_READ_BUFFER, file)!=nullptr) {
+    //     result.append(lineBuffer,COMMAND_READ_BUFFER);
+    // }
+
+    // fclose(file);
+    //
     return result;
 
 }
@@ -117,7 +179,7 @@ int Saver::parseCommandIdFromFileName(std::string filename)
 {
     std::string stringWithInt = filename.substr(0,filename.find(COMMAND_END_NAME));
     if (stringWithInt.find("/")!=stringWithInt.npos){
-        stringWithInt = stringWithInt.substr(stringWithInt.find("/")+1,stringWithInt.size() - stringWithInt.find("/"));
+        stringWithInt = stringWithInt.substr(stringWithInt.find("/")+1,stringWithInt.size() - stringWithInt.find("/")); // опасная и неудобная реализации но похер
     }
     try{
         int result = std::stoi(stringWithInt);
@@ -168,24 +230,45 @@ int Saver::readHostsFromFile(Host *result, int size)
         std::cout << "Saver:Warning! invalid ip count" << std::endl;
         size = _countHostInFile; // нужно ли это????
     }
-    FILE * file = fopen(FILE_FOR_IP_NAME, "r");
-
-    char lineBuffer[MAX_IP_ADDRES_LEN]; // Буфер для хранения строки
+    //FILE * file = fopen(FILE_FOR_IP_NAME, "r");
+    std::string line = "";
+    std::ifstream outputStream(FILE_FOR_IP_NAME);
     int lineCount = 0;
-    for(int lineCount = 0; lineCount < size; lineCount++) {
-        if(fgets(lineBuffer, MAX_IP_ADDRES_LEN, file)==nullptr){
-            std::cout << "Saver:Warning! file is end, but count not done";
-            break;
-        }
-        std::string line(lineBuffer);
-        if (line != "" && line.size() >= MIN_HOST_SIZE){ //последняя строка пустая
-            result[lineCount] = Host(line); // Host сам парсит себя
-        }
-        else{
-            break;
+
+    if (outputStream.is_open())
+    {
+        for (int lineCount = 0; lineCount < size; lineCount++){
+            if (!std::getline(outputStream, line)){
+                std::cout << "Saver:Warning! file is end, but count not done";
+                break;
+            }
+            if (line != "" && line.size() >= MIN_HOST_SIZE){ //последняя строка пустая
+                  result[lineCount] = Host(line); // Host сам парсит себя
+            }
+            else{
+                break;
+            }
+
         }
     }
-    fclose(file);
+    outputStream.close();
+    // char lineBuffer[MAX_IP_ADDRES_LEN] = {0}; // Буфер для хранения строки
+    // int lineCount = 0;
+    // for(int lineCount = 0; lineCount < size; lineCount++) {
+    //     if(fgets(lineBuffer, MAX_IP_ADDRES_LEN, file)==nullptr){
+    //         std::cout << "Saver:Warning! file is end, but count not done";
+    //         break;
+    //     }
+    //     std::string line(lineBuffer);
+    //     if (line != "" && line.size() >= MIN_HOST_SIZE){ //последняя строка пустая
+    //         result[lineCount] = Host(line); // Host сам парсит себя
+    //     }
+    //     else{
+    //         break;
+    //     }
+    // }
+    // fclose(file);
+    //
     return lineCount;
 
 }
@@ -204,31 +287,57 @@ int Saver::readCommandsIdFromFile(int *result, int size)
 {
     if (size != _countCommandIdInFile){
         std::cout << "Saver:Warning! invalid command id count" << std::endl;
-        size = _countCommandIdInFile;
+       // size = _countCommandIdInFile;
     }
-    FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r");
-
-    char lineBuffer[MAX_COMMAND_ID_LEN]; // Буфер для хранения строки
+    //FILE * file = fopen(FILE_FOR_COMMAND_ID_NAME, "r");
+    std::string line = "";
+    std::ifstream outputStream(FILE_FOR_COMMAND_ID_NAME);
     int lineCount = 0;
-    for(int lineCount = 0; lineCount < size; lineCount++) {
-        if(fgets(lineBuffer, MAX_COMMAND_ID_LEN, file)==nullptr){
-            std::cout << "Saver:Warning! file is end, but count not done";
-            break;
-        }
-        std::string line(lineBuffer);
-        if (line != "" ){ //последняя строка пустая
-            try {
-                result[lineCount] = std::stoi(line);
-            } catch (std::invalid_argument) {
-                std::cout << "Saver. cant convert to int. badId '" << line << "'" << std::endl;
+
+    if (outputStream.is_open())
+    {
+        for (int lineCount = 0; lineCount < size; lineCount++){
+            if (!std::getline(outputStream, line)){
+                std::cout << "Saver:Warning! file is end, but count not done" << std::endl;
                 break;
             }
-        }
-        else{
-            break;
+            if (line != "" ){ //последняя строка пустая
+                try {
+                    result[lineCount] = std::stoi(line);
+                } catch (std::invalid_argument) {
+                    std::cout << "Saver. cant convert to int. badId '" << line << "'" << std::endl;
+                    break;
+                }
+            }
+            else{
+                break;
+            }
+
         }
     }
-    fclose(file);
+    outputStream.close();
+
+    // char lineBuffer[MAX_COMMAND_ID_LEN]= {0}; ; // Буфер для хранения строки
+    // int lineCount = 0;
+    // for(int lineCount = 0; lineCount < size; lineCount++) {
+    //     if(fgets(lineBuffer, MAX_COMMAND_ID_LEN, file)==nullptr){
+    //         std::cout << "Saver:Warning! file is end, but count not done";
+    //         break;
+    //     }
+    //     std::string line(lineBuffer);
+    //     if (line != "" ){ //последняя строка пустая
+    //         try {
+    //             result[lineCount] = std::stoi(line);
+    //         } catch (std::invalid_argument) {
+    //             std::cout << "Saver. cant convert to int. badId '" << line << "'" << std::endl;
+    //             break;
+    //         }
+    //     }
+    //     else{
+    //         break;
+    //     }
+    // }
+    // fclose(file);
     return lineCount;
 }
 
