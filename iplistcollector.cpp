@@ -100,9 +100,9 @@ int IpListCollector::parse(std::string ipList, Host* &result){
 std::string IpListCollector::get( std::string ipList){
     /* <host>123.44.67.234:8878</host> */
 
-    for (int i = 0; i< size; i++){
+    /*for (int i = 0; i< size; i++){
         //std::cout << _hosts[i].toString() << " back" << std::endl;
-    }
+    }*/
     Host* newHosts = nullptr;
     int num_hosts = parse(ipList,newHosts);
 
@@ -121,9 +121,9 @@ std::string IpListCollector::get( std::string ipList){
                 //std::cout << i<<"great'"<<_hosts[j].toString()<<"'=='" << newHosts[i].toString() << "'"<<std::endl;
                 break;
             }
-            else{
+            /*else{
                 //std::cout << "'"<<_hosts[j].toString()<<"'!='" << newHosts[i].toString() << "'"<<std::endl;
-            }
+            }*/
 
         }
         //std::cout << std::endl;
@@ -150,9 +150,9 @@ std::string IpListCollector::get( std::string ipList){
         for (int i = size - countNewHosts; i < size; i++) {
             list_host += startTag + _hosts[i].toString() + endTag + "\n";
         }
-        for (int i = 0; i< size; i++){
+        /*for (int i = 0; i< size; i++){
             //std::cout << _hosts[i].toString() << " and\n ";
-        }
+        }*/
         //std::cout << std::endl;
         _saver->writeHostsToFile(_hosts,size);
 
