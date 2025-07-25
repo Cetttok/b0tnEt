@@ -1,9 +1,2 @@
-<h2>includes</h2>
-<pre>//base
-#include &lt;iostream&gt;
-#include &lt;cstring&gt;
-//for tcp connect
-#include &lt;netinet/in.h&gt;
-#include &lt;sys/socket.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;arpa/inet.h&gt;</pre>
+<img width="1666" height="932" alt="image" src="https://github.com/user-attachments/assets/4b42ce5e-7fcb-42d8-a049-264c2538c90e" />
+
