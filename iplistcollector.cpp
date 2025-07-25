@@ -20,7 +20,7 @@ int IpListCollector::check() {
     bool activeHost[size];
     int countActiveHosts =0;
     for(int  i=0;i<size;i++){
-        activeHost[i]=pinger->ping(_hosts[i].ip());
+        activeHost[i]=true;//pinger->ping(_hosts[i].ip());
         if(ptrToHost==i)ptrToHost = countActiveHosts;
         if( activeHost[i] )countActiveHosts++;
     }
@@ -92,27 +92,43 @@ int IpListCollector::parse(std::string ipList, Host* &result){
         result[i] = Host(addr);
         p+=lenTag+1;
     }
+    //std::cout << result[0].toString() << " "<< result[1].toString() << " "<<result[2].toString() << std::endl;
     return num_slash;
-}
+ }
 
 
 std::string IpListCollector::get( std::string ipList){
     /* <host>123.44.67.234:8878</host> */
 
+    for (int i = 0; i< size; i++){
+        //std::cout << _hosts[i].toString() << " back" << std::endl;
+    }
     Host* newHosts = nullptr;
     int num_hosts = parse(ipList,newHosts);
 
-    char* isNewHost = new char[num_hosts]{1};  // отметка новых хостов и получение их количества
+    bool* isNewHost = new bool[num_hosts]{true};
+    for (int i = 0; i < num_hosts; i++){
+        isNewHost[i] = true;
+    }
+    //std::cout << isNewHost[0] << isNewHost[1] << isNewHost[2] << "Hosts: " << num_hosts<<std::endl;    // отметка новых хостов и получение их количества
     int countNewHosts = num_hosts;
+    //std::cout<< "start" << std::endl<< std::endl<< std::endl;
     for(int i=0;i<num_hosts;i++){
         for(int j=0;j<size;j++){
-            if(_hosts[j].port()==newHosts[i].port() && _hosts[j].ip() == newHosts[i].ip()){
-                isNewHost[i] = 0;
+            if(_hosts[j].toString()==newHosts[i].toString()){
+                isNewHost[i] = false;
                 countNewHosts --;
+                //std::cout << i<<"great'"<<_hosts[j].toString()<<"'=='" << newHosts[i].toString() << "'"<<std::endl;
                 break;
             }
+            else{
+                //std::cout << "'"<<_hosts[j].toString()<<"'!='" << newHosts[i].toString() << "'"<<std::endl;
+            }
+
         }
+        //std::cout << std::endl;
     }
+    //std::cout << newHosts[0].toString() << newHosts[1].toString()  << newHosts[2].toString() << std::endl;
 
     if(countNewHosts!=0) {  // объединение списков хостов, обновление list_host и сохранение на диск
         Host *buff = _hosts;
@@ -120,15 +136,24 @@ std::string IpListCollector::get( std::string ipList){
         for (int i = 0; i < size; i++) {
             _hosts[i] = buff[i];
         }
+        //std::cout << isNewHost[0] << isNewHost[1] << isNewHost[2] << "newHosts: " << countNewHosts <<std::endl;
+        int posNewHost = size;
         for (int i = 0; i < num_hosts; i++) {
-            if(isNewHost[i]==1)_hosts[i] = newHosts[i];
-            else i++;
+
+            if(isNewHost[i]){
+                _hosts[posNewHost] = newHosts[i];
+                posNewHost++;
+            }
+
         }
         size += countNewHosts;
         for (int i = size - countNewHosts; i < size; i++) {
             list_host += startTag + _hosts[i].toString() + endTag + "\n";
         }
-
+        for (int i = 0; i< size; i++){
+            //std::cout << _hosts[i].toString() << " and\n ";
+        }
+        //std::cout << std::endl;
         _saver->writeHostsToFile(_hosts,size);
 
         delete[] buff;
