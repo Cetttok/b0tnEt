@@ -7,9 +7,11 @@
 #include "udppingoperator.h"
 #include "saver.h"
 
+
 #define startTag "<host>"
 #define endTag "</host>"
 #define lenTag 6 //длина начального тега; end tag len = start tag len + 1
+
 
 class IpListCollector{
 public:
@@ -17,8 +19,11 @@ public:
     ~IpListCollector();
 
     std::string get(std::string *nextIp, int* nextPort); // для клиентской части
-    std::string get(std::string ipList); // для серверной части
 
+    // для серверной части:
+    std::string get(std::string ipList); // неограниченное число адресов
+
+    void post(std::string ipList);
     // пример принимаемого списка новых хостов / пример возвращаемого списка хостов
     /*
     <host>123.45.67.89:1234</host>/n
@@ -28,12 +33,15 @@ public:
     int check();
 
 
+
+private:
+
     // result должен быть равен nullptr
     // парсит строку
     // возвращает количество хостов в result
-    int parse(std::string ipList, Host* &result);
+    int parse(const std::string ipList, Host* &result);
+    Host* konk(int countNewHosts, int num_hosts, bool* isNewHost, Host* newHosts);
 
-private:
 
     Host* _hosts= nullptr;
 
