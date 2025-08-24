@@ -15,13 +15,15 @@ public:
 
     bool addCommand(int id, std::string command); // взять в выполнение комнаду
     void update(); //отправить все невыполняющиеся комманды в выполнение
-    std::map<int, std::string> shareCommands(); // команды для отправки другим устройствам
+    std::map<int, std::string> *  shareCommands(); // команды для отправки другим устройствам
     void saveOnDrive(); // сохранить текущее состояние на диск без обновление. Жедательно вызвать перед этим update
+    int getPort();
+    void setPort(int port);
+    void clearExecutedCommand(); // обновить и проверить состояние комманд отредачить _executedId
 
 private:
 
     void sendCommandsToExecutor();  //тоже что и update незнаю почему я жто сделал???
-    void clearExecutedCommand(); // обновить и проверить состояние комманд отредачить _executedId
     void addExecutedId(int id); // эмм как бы добавляет в конец последнюю команду первая уходит (при забитом спике) или просто добоавляет в конец массива
     bool isAlreadyExecuted(int id); // есть ли комманда в списке выполненных?
 

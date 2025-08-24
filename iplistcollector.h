@@ -17,7 +17,6 @@ class IpListCollector{
 public:
     IpListCollector(UdpPingOperator* pingOperator); // pingOperator нужен для работы метода check
     ~IpListCollector();
-
     std::string get(std::string *nextIp, int* nextPort); // для клиентской части
 
     // для серверной части:
@@ -34,6 +33,7 @@ public:
 
 
 
+    Host getNewTargetHost();
 private:
 
     // result должен быть равен nullptr

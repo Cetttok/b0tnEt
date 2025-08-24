@@ -1,11 +1,13 @@
 #include "commandtrasporter.h"
 #include <ctime>
+#include <signal.h>
 const int LAST_LIST_ID_COMMANDS_SIZE = 50;
 
 
 
 CommandTrasporter::CommandTrasporter():_executedId(new int[LAST_LIST_ID_COMMANDS_SIZE]),_executor(time(NULL)),_saver(Saver::getSaver())
 {
+    signal(SIGCHLD, SIG_IGN);
     for (int i = 0 ; i < LAST_LIST_ID_COMMANDS_SIZE; i++){
         _executedId[i] = 0;
     }
@@ -53,9 +55,9 @@ void CommandTrasporter::update()
     sendCommandsToExecutor();
 }
 
-std::map<int, std::string> CommandTrasporter::shareCommands()
+std::map<int, std::string> *CommandTrasporter::shareCommands()
 {
-    return _commands;
+    return &_commands;
 }
 
 void CommandTrasporter::saveOnDrive()
@@ -66,9 +68,18 @@ void CommandTrasporter::saveOnDrive()
     _saver->writeCommandsIdToFile(_executedId, LAST_LIST_ID_COMMANDS_SIZE);
 }
 
+int CommandTrasporter::getPort()
+{
+    return _saver->getPort();
+}
+
+void CommandTrasporter::setPort(int port)
+{
+    _saver->setPort(port);
+}
+
 void CommandTrasporter::sendCommandsToExecutor()
 {
-    clearExecutedCommand();
     if (!_commands.empty()){
         for (const auto& [id, command] : _commands){
             if (!isAlreadyExecuted(id))
@@ -77,6 +88,7 @@ void CommandTrasporter::sendCommandsToExecutor()
             }
         }
     }
+    clearExecutedCommand();
 }
 void CommandTrasporter::clearExecutedCommand()
 {

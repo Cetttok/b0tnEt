@@ -1,7 +1,7 @@
 #include "udppingoperator.h"
 #include <thread>
 
-const int PORT = 1234; // порт на котором будет работать сервер. Туда и обращаются другие
+const int PORT = 9563; // порт на котором будет работать сервер. Туда и обращаются другие
 const int WAIT_TIME = 100000; // сколько ждать пакета перед повторной отправкой
 const int CHECKS_ON_PACKET = 100; //сколько раз за WAIT_TIME проверять наличие пакета в буфере
 const int TRY_COUNT = 3; // сколько попыток делать (сколько пакетов отправлять)
@@ -69,6 +69,7 @@ void UdpPingOperator::pingLoop()
         if (_udp.checkBuffer()){
             if(isResponsePingDataValid(_udp.listen())){
                 _udp.send(PING_SERVER_MESSAGE,PORT);
+                std::cout << "PING!" << std::endl;
             }
         }
     }

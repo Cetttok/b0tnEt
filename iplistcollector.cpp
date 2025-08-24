@@ -8,8 +8,8 @@ std::string IpListCollector::get(std::string* nextIp, int *nextPort) {
         *nextPort = _hosts[ptrToHost].port();
         if (size <= ++ptrToHost ) ptrToHost = 0;
     }else{
-        *nextIp = "";
-        *nextPort =0;
+        *nextIp = std::string("127.0.0.11");
+        *nextPort =3456;
     }
     return list_host;
 }
@@ -22,7 +22,7 @@ int IpListCollector::check() {
     bool activeHost[size];
     int countActiveHosts =0;
     for(int  i=0;i<size;i++){
-        activeHost[i]=pinger->ping(_hosts[i].ip());
+        activeHost[i]=true;//pinger->ping(_hosts[i].ip());
         if(ptrToHost==i)ptrToHost = countActiveHosts;
         if( activeHost[i] )countActiveHosts++;
     }
@@ -71,6 +71,21 @@ IpListCollector::~IpListCollector() {
         _hosts = nullptr;
     }
 
+}
+
+Host IpListCollector::getNewTargetHost()
+{
+    if(size!=0) {
+        Host host = _hosts[ptrToHost];
+        if (size <= ++ptrToHost ) {
+            ptrToHost = 0;
+        }
+        return host;
+    }else{/*
+        *nextIp = std::string("127.0.0.11");
+        *nextPort =3456;*/
+        return Host();
+    }
 }
 
 // result должен быть равен nullptr
