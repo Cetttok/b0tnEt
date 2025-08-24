@@ -22,7 +22,7 @@ int IpListCollector::check() {
     bool activeHost[size];
     int countActiveHosts =0;
     for(int  i=0;i<size;i++){
-        activeHost[i]=true;//pinger->ping(_hosts[i].ip());
+        activeHost[i]=pinger->ping(_hosts[i].ip());
         if(ptrToHost==i)ptrToHost = countActiveHosts;
         if( activeHost[i] )countActiveHosts++;
     }
