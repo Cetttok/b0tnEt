@@ -15,7 +15,7 @@
 
 class IpListCollector{
 public:
-    IpListCollector(UdpPingOperator* pingOperator); // pingOperator нужен для работы метода check
+    IpListCollector(UdpPingOperator* pingOperator, bool isDeleteBadPingHosts= true); // pingOperator нужен для работы метода check
     ~IpListCollector();
     std::string get(std::string *nextIp, int* nextPort); // для клиентской части
 
@@ -41,7 +41,7 @@ private:
     // возвращает количество хостов в result
     int parse(const std::string ipList, Host* &result);
     Host* konk(int countNewHosts, int num_hosts, bool* isNewHost, Host* newHosts);
-
+    const bool _isDeleteBadPingHosts;
 
     Host* _hosts= nullptr;
 

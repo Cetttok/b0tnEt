@@ -69,7 +69,7 @@ void UdpPingOperator::pingLoop()
         if (_udp.checkBuffer()){
             if(isResponsePingDataValid(_udp.listen())){
                 _udp.send(PING_SERVER_MESSAGE,PORT);
-                std::cout << "PING!" << std::endl;
+
             }
         }
     }

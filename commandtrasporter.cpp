@@ -39,12 +39,12 @@ bool CommandTrasporter::addCommand(int id, std::string command)
             return true;
         }
         else{
-            std::cout << "CommandTransporter. Warn! Cant add command. Is already been executed!" << std::endl;
+            //std::cout << "CommandTransporter. Warn! Cant add command. Is already been executed!" << std::endl;
             return false;
         }
     }
     else{
-        std::cout<< "CommandTranporter. Warn! Cant add command. Already in added or loaded from drive..." << std::endl;
+        //std::cout<< "CommandTranporter. Warn! Cant add command. Already in added or loaded from drive..." << std::endl;
         return false;
     }
 }

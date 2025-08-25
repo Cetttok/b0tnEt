@@ -1,7 +1,7 @@
 #include "iplistcollector.h"
 
 //#define UNLIMIT_IP_LIST
-
+const int WAIT_TARGET_DURATION = 10000;
 std::string IpListCollector::get(std::string* nextIp, int *nextPort) {
     if(size!=0) {
         *nextIp = _hosts[ptrToHost].ip();
@@ -22,7 +22,13 @@ int IpListCollector::check() {
     bool activeHost[size];
     int countActiveHosts =0;
     for(int  i=0;i<size;i++){
-        activeHost[i]=pinger->ping(_hosts[i].ip());
+        if (_isDeleteBadPingHosts){
+
+            activeHost[i]=pinger->ping(_hosts[i].ip());
+        }
+        else{
+            activeHost[i] = true;
+        }
         if(ptrToHost==i)ptrToHost = countActiveHosts;
         if( activeHost[i] )countActiveHosts++;
     }
@@ -50,7 +56,7 @@ int IpListCollector::check() {
     return size;
 }
 
-IpListCollector::IpListCollector(UdpPingOperator* pingOperator):_saver(Saver::getSaver()),pinger(pingOperator) {
+IpListCollector::IpListCollector(UdpPingOperator* pingOperator, bool isDeleteBadPingHosts):_saver(Saver::getSaver()),pinger(pingOperator), _isDeleteBadPingHosts(isDeleteBadPingHosts) {
     int a =_saver->countHostInFile();
     list_host ="";
     if (size != a) {
@@ -76,11 +82,17 @@ IpListCollector::~IpListCollector() {
 Host IpListCollector::getNewTargetHost()
 {
     if(size!=0) {
-        Host host = _hosts[ptrToHost];
-        if (size <= ++ptrToHost ) {
-            ptrToHost = 0;
+        while (true){
+            std::this_thread::sleep_for(std::chrono::microseconds(WAIT_TARGET_DURATION));
+            Host host = _hosts[ptrToHost];
+            if (size <= ++ptrToHost ) {
+                ptrToHost = 0;
+            }
+            if (pinger->ping(host.ip())){
+                return host;
+            }
         }
-        return host;
+
     }else{/*
         *nextIp = std::string("127.0.0.11");
         *nextPort =3456;*/
