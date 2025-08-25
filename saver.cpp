@@ -150,7 +150,7 @@ std::string Saver::getCommandById(int id)
     {
         while (std::getline(in, line))
         {
-            result+= line;
+            result+= line + "\n";
         }
     }
     in.close();
