@@ -37,9 +37,20 @@ bool TcpServer::start()
 
 }
 
-void TcpServer::nextPendingConnection() // принять (подождать) одно соединение. Сейчас возможна работа только с одним клиентом
+bool TcpServer::nextPendingConnection(bool wait) // принять (подождать) одно соединение. Сейчас возможна работа только с одним клиентом
 {
-    mClientSocket = accept(mServerSocket, nullptr, nullptr);
+    if (wait){
+        mClientSocket = accept(mServerSocket, nullptr, nullptr);
+        return true;
+    }
+    else{
+
+        mClientSocket = accept4(mServerSocket, nullptr, nullptr, MSG_DONTWAIT);
+        if (mClientSocket > 0 ){
+            return true;
+        }
+        return false;
+    }
 }
 
 void TcpServer::closeLastConnection() // закрыть последнее

@@ -48,6 +48,9 @@ public:
     bool clearCommandOnDisk(int id);
     void saveCommandOnDisk(std::string command, int id);
 
+    int getPort();
+    void setPort(int port);
+
 private:
 
     static  Saver * _saver;

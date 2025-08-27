@@ -65,9 +65,9 @@ void MyUPnP::GetRoutersAddress() {
 
     std::string firstAns = udp.listen();
     //std::cout << udp.getLocalIp() << " - ip" << endl;
-    std::cout << "first:\n\n---------------\n" <<firstAns<<"\n-------------\n"<<std::endl;
+    //std::cout << "first:\n\n---------------\n" <<firstAns<<"\n-------------\n"<<std::endl;
     path=new Path(firstAns );// deleting into ~MyUPnP
-    std::cout << "path(" << path->mIp << " " << path->mPort << " " << path->mPath << ");" <<std::endl;
+    //std::cout << "path(" << path->mIp << " " << path->mPort << " " << path->mPath << ");" <<std::endl;
 }
 
 const char *MyUPnP::Get_xml() {
@@ -76,7 +76,8 @@ const char *MyUPnP::Get_xml() {
                           +"Host: " + path->mIp+ "\r\n"
                           + "Connection: keep-alive\r\n"
                           + "\r\n";
-    std::cout << "fixed" << connect->fixConnection() << std::endl;
+    connect->fixConnection();
+    //std::cout << "fixed" << << std::endl;
 
     std::string answer= connect->recieveAnswer(request,60000);
 
@@ -88,7 +89,7 @@ const char *MyUPnP::Get_xml() {
 
     if(cstr_answer) {
         for (unsigned int i = 0; i < answer.size() + 1; i++) cstr_answer[i] = _cstr_answer[i];
-        std::cout << "xml--------------------------\n" << cstr_answer << "\n---------------------xml\n" << std::endl;
+        //std::cout << "xml--------------------------\n" << cstr_answer << "\n---------------------xml\n" << std::endl;
     }
     return (const char*)cstr_answer;
 }
@@ -96,19 +97,19 @@ const char *MyUPnP::Get_xml() {
 void MyUPnP::Parse_xml_to_ctrUrl(const char* m_xml) {
 
     tinyxml2::XMLDocument xml;
-
-    std::cout<<"error id parse = "<< xml.Parse(m_xml) <<std::endl;
+    xml.Parse(m_xml);
+    //std::cout<<"error id parse = "<< <<std::endl;
     const tinyxml2::XMLElement* service = xml.RootElement()->FirstChildElement("device")
             ->FirstChildElement("deviceList")
             ->FirstChildElement("device")
             ->FirstChildElement("deviceList")->FirstChildElement("device")->FirstChildElement("serviceList")
             ->FirstChildElement("service")->FirstChildElement("controlURL");
 
-    std::cout<< "perfect\n" <<service->GetText()<<std::endl;
+   // std::cout<< "perfect\n" <<service->GetText()<<std::endl;
     ctrUrl = std::string(service->GetText());
 }
 
-std::string MyUPnP::GetText(unsigned int PortNumber, unsigned int LeaseDuration, const char* ProgramName) {
+std::string MyUPnP::GetText(unsigned int PortNumber, const char * protocol,unsigned int LeaseDuration, const char* ProgramName) {
 
     std::string soapBody =
             "<?xml version=\"1.0\"?>"
@@ -118,7 +119,7 @@ std::string MyUPnP::GetText(unsigned int PortNumber, unsigned int LeaseDuration,
             "<u:AddPortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
             "<NewRemoteHost></NewRemoteHost>"
             "<NewExternalPort>" + std::to_string(PortNumber) + "</NewExternalPort>"
-            "<NewProtocol>" + "TCP"+ "</NewProtocol>"
+            "<NewProtocol>" + protocol+ "</NewProtocol>"
             "<NewInternalPort>" + std::to_string(PortNumber) + "</NewInternalPort>"
             "<NewInternalClient>" + getLocalIp()+ "</NewInternalClient>"
             "<NewEnabled>1</NewEnabled>"
@@ -138,21 +139,22 @@ std::string MyUPnP::GetText(unsigned int PortNumber, unsigned int LeaseDuration,
     return headers+soapBody;
 }
 
-int MyUPnP::openPort(unsigned int PortNumber, unsigned int LeaseDuration, const char* ProgramName) {
+int MyUPnP::openPort(unsigned int PortNumber, const char * protocol,  unsigned int LeaseDuration, const char* ProgramName) {
 
     TcpConnect connect(path->mIp, std::stoi(path->mPort));
 
-    std::string message = GetText(PortNumber, LeaseDuration, ProgramName);
+    std::string message = GetText(PortNumber,protocol, LeaseDuration, ProgramName);
 
-    std::cout << "answer ________________" <<std::endl;
+    //std::cout << "answer ________________" <<std::endl;
 
     connect.fixConnection();
-    std::cout << connect.recieveAnswer(message,60000) << std::endl; // 6000 - таймаут ожидания в микросекундах перед чтением
+    std::string answer = connect.recieveAnswer(message,60000) ;
+    std::cout << "Upnp. "<<protocol<<" Log FINAL ANSWER: "<<answer.substr(0,answer.find("\n"))<< std::endl; // 6000 - таймаут ожидания в микросекундах перед чтением
     connect.closeConnection();
 
-    std::cout << "________________answer " <<std::endl;
+    //std::cout << "________________answer " <<std::endl;
 
-    std::cout << "Your local ip - "<< getLocalIp() << std::endl;
+    //std::cout << "Your local ip - "<< getLocalIp() << std::endl;
 
     return 0;
 }

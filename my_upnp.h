@@ -30,14 +30,14 @@ public:
         if(path)delete path;
         path=nullptr;
     }
-    int openPort(unsigned int PortNumber = 4671, unsigned int LeaseDuration = 0, const char* ProgramName = "Telegram");
+    int openPort(unsigned int PortNumber = 4671, const char * protocol = "TCP", unsigned int LeaseDuration = 0, const char* ProgramName = "Telegram");
 private:
     Path* path;
     std::string ctrUrl;
     void GetRoutersAddress();
     const char* Get_xml();
     void Parse_xml_to_ctrUrl(const char* m_xml);
-    std::string GetText(unsigned int PortNumber, unsigned int LeaseDuration, const char*ProgramName);
+    std::string GetText(unsigned int PortNumber, const char * protocol,  unsigned int LeaseDuration, const char*ProgramName);
 };
 
 

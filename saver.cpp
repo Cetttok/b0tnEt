@@ -8,6 +8,7 @@ const char IP_PORT_DELIMER = ':';
 
 const char * FILE_FOR_IP_NAME = "ipaddr.txt";
 const char * FILE_FOR_COMMAND_ID_NAME =  "idcommands.txt";
+const char * FILE_FOR_MAIN_PORT = "mainport.txt";
 const char * COMMANDS_DIRECORY = "commands";
 
 const char * COMMAND_END_NAME = "_c.txt"; // типо <id>_c.txt
@@ -149,7 +150,7 @@ std::string Saver::getCommandById(int id)
     {
         while (std::getline(in, line))
         {
-            result+= line;
+            result+= line + "\n";
         }
     }
     in.close();
@@ -370,6 +371,24 @@ bool Saver::clearCommandOnDisk(int id)
 void Saver::saveCommandOnDisk(std::string command, int id)
 {
     rewriteFile(genFileNameFromCommandId(id),command);
+}
+
+int Saver::getPort()
+{
+    std::string line = "";
+    std::ifstream outputStream(FILE_FOR_MAIN_PORT);
+    if (std::getline(outputStream, line)){
+        return std::stoi(line);
+    }
+    else{
+        std::cout << "Saver. Cant read main port. Return 0"<< std ::endl;
+        return 0;
+    }
+}
+
+void Saver::setPort(int port)
+{
+    rewriteFile(FILE_FOR_MAIN_PORT,std::to_string(port));
 }
 
 Host::Host(std::string ip, int port):_ip(ip), _port(port)
