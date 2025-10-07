@@ -9,6 +9,7 @@ const char IP_PORT_DELIMER = ':';
 const char * FILE_FOR_IP_NAME = "ipaddr.txt";
 const char * FILE_FOR_COMMAND_ID_NAME =  "idcommands.txt";
 const char * FILE_FOR_MAIN_PORT = "mainport.txt";
+const char * FILE_FOR_PING_PORT = "pingport.txt";
 const char * COMMANDS_DIRECORY = "commands";
 
 const char * COMMAND_END_NAME = "_c.txt"; // типо <id>_c.txt
@@ -228,8 +229,13 @@ void Saver::writeHostsToFile(Host *list, int size)
 int Saver::readHostsFromFile(Host *result, int size)
 {
     if (size != _countHostInFile){
-        std::cout << "Saver:Warning! invalid ip count" << std::endl;
-        size = _countHostInFile; // нужно ли это????
+        if (size < _countHostInFile){
+            std::cout << "Saver:Warning! invalid ip count" << std::endl;
+        }
+        else{
+            size = _countHostInFile; // нужно ли это????
+
+        }
     }
     //FILE * file = fopen(FILE_FOR_IP_NAME, "r");
     std::string line = "";
@@ -373,7 +379,7 @@ void Saver::saveCommandOnDisk(std::string command, int id)
     rewriteFile(genFileNameFromCommandId(id),command);
 }
 
-int Saver::getPort()
+int Saver::getMainPort()
 {
     std::string line = "";
     std::ifstream outputStream(FILE_FOR_MAIN_PORT);
@@ -386,14 +392,33 @@ int Saver::getPort()
     }
 }
 
-void Saver::setPort(int port)
+void Saver::setMainPort(int port)
 {
     rewriteFile(FILE_FOR_MAIN_PORT,std::to_string(port));
 }
 
-Host::Host(std::string ip, int port):_ip(ip), _port(port)
+int Saver::getPingPort()
+{
+    std::string line = "";
+    std::ifstream outputStream(FILE_FOR_PING_PORT);
+    if (std::getline(outputStream, line)){
+        return std::stoi(line);
+    }
+    else{
+        std::cout << "Saver. Cant read ping port. Return 0"<< std ::endl;
+        return 0;
+    }
+}
+
+void Saver::setPingPort(int port)
+{
+    rewriteFile(FILE_FOR_PING_PORT,std::to_string(port));
+}
+
+Host::Host(std::string ip, int mainPort, int pingPort):_ip(ip), _mainPort(mainPort), _pingPort(pingPort)
 {// зачем этот конструктор
     //существует
+    _isNull = false;
 }
 
 Host::Host(std::string parseFrom)
@@ -408,13 +433,20 @@ Host::Host(std::string parseFrom)
             return;
         }
 
-        _port = std::stoi(parseFrom.substr(positionOfDelimer+1, parseFrom.size()-positionOfDelimer));
+
         _ip = parseFrom.substr(0, positionOfDelimer);
+        parseFrom = parseFrom.substr(_ip.size()+1, parseFrom.size());
+        std::string forMainPort = parseFrom.substr(0, parseFrom.find(IP_PORT_DELIMER));
+        _mainPort = std::stoi(forMainPort);
+        std::string forPingPort = parseFrom.substr(parseFrom.find(IP_PORT_DELIMER)+1, parseFrom.size());
+        _pingPort = std::stoi(forPingPort);
 
     }
     catch (std::invalid_argument) {
         std::cout << "Host. Error while parsing port (to int)" << std::endl;
+        return;
         }
+    _isNull = false;
 
 }
 
@@ -427,12 +459,36 @@ std::string Host::ip() const
     return _ip;
 }
 
-int Host::port() const
+int Host::mainPort() const
 {
-    return _port;
+    return _mainPort;
 }
 
 std::string Host::toString()
 {
-    return _ip + ":" + std::to_string(_port);
+    return _ip + ":" + std::to_string(_mainPort) + ":"  + std::to_string(_pingPort);
+}
+
+bool Host::isNull()
+{
+    if (_isNull){
+        return _isNull;
+    }
+    else{
+        if (mainPort()== 0 | pingPort() == 0){
+            return true;
+        }
+        return false;
+    }
+
+}
+
+bool Host::operator==(const Host &b)
+{
+    return (_mainPort==b.mainPort() && _pingPort==b.pingPort() && _mainPort==b.mainPort() &&  _ip == b.ip());
+}
+
+int Host::pingPort() const
+{
+    return _pingPort;
 }

@@ -1,10 +1,11 @@
 #include "globaltransporter.h"
 #include <time.h>
+//#include "hostlistcollector.h"
 int MICROSECONDS_ON_TIC = 10000;
 int MICROSECONDS_IN_SECOND = 1000000;
 int MAX_TICS_ON_UPDATE = 1000;
 int ADD_TICS_ON_UPDATE = 300;
-int MAX_PORT = 10000;
+int MAX_PORT = 60000;
 
 //for parsing
 const char * UPDATE_RESPONSE_START_TAG = "updateRespone{";
@@ -13,9 +14,9 @@ const char * HOST_LIST_START_TAG  = "hostList{";
 const char * HOST_LIST_END_TAG  = "}hostList";
 const char * COMMANDS_START_TAG  = "commands{";
 const char * COMMANDS_END_TAG  = "}commands";
-const char * HOST_START_TAG = "<host>";
-const char * HOST_END_TAG = "</host>\n";
-const char * HOST_DELIMER = ":";
+// const char * HOST_START_TAG = "<host>";
+// const char * HOST_END_TAG = "</host>\n";
+// const char * HOST_DELIMER = ":";
 const char * ONE_COMMAND_START_TAG = "<command>";
 const char * ONE_COMMAND_END_TAG = "</command>";
 const char * COMMAND_ID_START_TAG = "<id>";
@@ -26,14 +27,13 @@ const char * DNS_IP = "8.8.8.8";
 const int DNS_PORT = 53;
 const int LOCAL_IP_GETTER_BUFFER_SIZE = 16;
 const int UDP_PING_OPERATOR_PORT = 1234;
+const int MAX_SYSTEM_PORT = 1024;
 
-GlobalTransporter::GlobalTransporter(bool isDeleteForBadPing, bool isLocalNetwork):_isDeleteForBadPing(isDeleteForBadPing),_isLocalNetwork(isLocalNetwork)
+GlobalTransporter::GlobalTransporter(bool isSimpleMode, bool isLocalNetwork):_isSimpleMode(isSimpleMode),_isLocalNetwork(isLocalNetwork)
 {
     srand(time(0));
     _commands = new CommandTrasporter();
-    _ping = new UdpPingOperator();
-    _hostList = new IpListCollector(_ping);
-    _ping->startPingServer();
+
     if (!isLocalNetwork){
         _upnp = new MyUPnP();
         _ipGetter = new StunIpGetter();
@@ -56,11 +56,11 @@ void GlobalTransporter::eventLoop()
 {
     srand(time(0));
     int waitTicsToUpdate = rand()%MAX_TICS_ON_UPDATE +ADD_TICS_ON_UPDATE ;
-    //std::cout << "Wait: sec " << double(waitTicsToUpdate*10000)/1000000 << std::endl;
+
     Host newTarget;
     while(true){
         std::cout << "----------------------" << std::endl << "waiting host for update...." << std::endl;
-        newTarget = _hostList->getNewTargetHost();
+        newTarget = _hostList->getNewTarget();
         std::cout << std::endl<<"DONE! next update for host -  "<<newTarget.toString() << " Wait: sec " << waitTicsToUpdate*MICROSECONDS_ON_TIC/MICROSECONDS_IN_SECOND  << std::endl;
         std::this_thread::sleep_for(std::chrono::microseconds(waitTicsToUpdate*MICROSECONDS_ON_TIC));
         if (update(newTarget)){
@@ -78,28 +78,44 @@ void GlobalTransporter::eventLoop()
 
 void GlobalTransporter::init()
 {
-    int port = rand()%MAX_PORT;
-    //_upnp->openPort(port);
-    _commands->setPort(port);
+    int mainPort = rand()%(MAX_PORT-MAX_SYSTEM_PORT) +MAX_SYSTEM_PORT ;
+    int pingPort = rand()%(MAX_PORT-MAX_SYSTEM_PORT) + MAX_SYSTEM_PORT; //для того чтобы избегать занятия портов в диапозоне 0-1024 системных
+
+    _commands->setMainPort(mainPort);
+    _commands->setPingPort(pingPort);
+
     load();
 }
 
 void GlobalTransporter::load()
 {
-    int port = _commands->getPort();
-    std::cout << "GloabalTransporter. START TCP SERVER ON HOST- " << getIp() << ":"    <<port<< std::endl;
+
+    int mainPort = _commands->getMainPort();
+    int pingPort = _commands->getPingPort();
+    _ping = new UdpPingOperator(pingPort);
+    _ping->startPingServer();
+    std::cout << "GloabalTransporter. START TCP SERVER ON HOST- " << getIp() << ":"    <<mainPort<< ":"<< pingPort<< std::endl;
     if (!_isLocalNetwork){
-        _upnp->openPort(port, "TCP");
-        _upnp->openPort(UDP_PING_OPERATOR_PORT, "UDP");
+        _upnp->openPort(mainPort, "TCP");
+        _upnp->openPort(pingPort, "UDP");
     }
-    _server = new TcpServer(port);
+    if (_isSimpleMode){
+        _hostList = new HostListCollector(new SimpleHostsSetManager(_ping),_ping);
+    }
+    else{
+        _hostList = new HostListCollector(new BaseHostsSetManager(),_ping);
+    }
+
+    _server = new TcpServer(mainPort);
+    ///add fiew local ip
+    _hostList->addHost(Host(getIp(),_commands->getMainPort(),_commands->getPingPort()));
 }
 
 void GlobalTransporter::save()
 {
     _commands->clearExecutedCommand();
     _commands->saveOnDrive();
-    _hostList->check();
+    _hostList->save();
 
 }
 
@@ -122,7 +138,7 @@ void GlobalTransporter::startListening()
 
 bool GlobalTransporter::update(Host host)
 {
-    _connect = new TcpConnect(host.ip(), host.port());
+    _connect = new TcpConnect(host.ip(), host.mainPort());
     if (_connect->fixConnection()){
         //_connect->sendMessage(genAnswer());
         _connect->sendMessage(genAnswer());
@@ -146,9 +162,7 @@ std::string GlobalTransporter::genAnswer()
 {
     std::string result = UPDATE_RESPONSE_START_TAG;
     result += HOST_LIST_START_TAG;
-    result+= _hostList->get("")
-              +HOST_START_TAG+getIp()+HOST_DELIMER+std::to_string(_commands->getPort())+
-        HOST_END_TAG;
+    result+= _hostList->share();
     result += HOST_LIST_END_TAG;
     result += COMMANDS_START_TAG;
     result+= commandsToString(_commands->shareCommands());
@@ -183,19 +197,13 @@ bool GlobalTransporter::accept(std::string response)
 
             forHostList = response.substr(std::string(HOST_LIST_START_TAG).size(), response.find(HOST_LIST_END_TAG)-std:: string(HOST_LIST_START_TAG).size());
             response =response.substr(forHostList.size() + std::string(HOST_LIST_END_TAG).size()*2, response.size()-1);
-            if(forHostList.find(HOST_START_TAG) != forHostList.npos){
-                //forHostList = forHostList.substr(forHostList.find(HOST_START_TAG),forHostList.size()-1);
-                processHostList(forHostList);
-            }
-            else{
-                forHostList = "";
-            }
+
+            processHostList(forHostList);
 
         }
 
         if (response.find(COMMANDS_START_TAG) != response.npos && response.find(COMMANDS_END_TAG) != response.npos ){
             std::string forCommands = response.substr(response.find(COMMANDS_START_TAG)+std::string(COMMANDS_START_TAG).size(), response.find(COMMANDS_END_TAG)-std::string(COMMANDS_END_TAG).size());
-            //forCommands = response.substr(0, response.find(COMMANDS_END_TAG));
             commands = parseCommands(forCommands);
             processCommands(commands);
 
@@ -282,5 +290,5 @@ std::map<int, std::string> GlobalTransporter::parseCommands(std::string from)
 
 void GlobalTransporter::processHostList(std::string hosts)
 {
-    _hostList->get(hosts);
+    _hostList->sync(hosts);
 }

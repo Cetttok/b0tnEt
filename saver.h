@@ -10,17 +10,25 @@
 class Host// класс стьруктура с методами парсинга и вывода
 {
 public:
-    Host(std::string ip, int port);
+    Host(std::string ip, int mainPort, int pingPort);
     Host(std::string parseFrom); // парсит из строки вида <ip>:<port>
     Host();
 
     std::string ip() const;
-    int port() const;
+    int mainPort() const;
+    int pingPort() const;
 
     std::string toString(); // возвращавет строку вида <ip>:<port>
+
+    bool isNull();
+
+
+    bool operator==(const Host& b);
 private:
     std::string _ip = "0.0.0.0";
-    int _port = 0 ;
+    int _mainPort = 0 ;
+    int _pingPort = 0;
+    bool _isNull = true;
 };
 
 //класс который позволяет хранить списки хостов и id команд на диске.
@@ -48,8 +56,12 @@ public:
     bool clearCommandOnDisk(int id);
     void saveCommandOnDisk(std::string command, int id);
 
-    int getPort();
-    void setPort(int port);
+    int getMainPort();
+    void setMainPort(int port);
+
+    int getPingPort();
+    void setPingPort(int port);
+
 
 private:
 

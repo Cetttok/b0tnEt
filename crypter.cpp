@@ -3,6 +3,7 @@ CryptManager * CryptManager ::_manager = nullptr;
 
 const int AES_RANDOM_KEY_SIZE= 32;
 const int AES_ADDITIONAL_PADDING_SIZE = 16;
+const int SHA256_HASH_SIZE = 64;
 
 const char * PATH_TO_RSA_PUBLIC_KEY =  "keys/public_key.pem";
 const char * PATH_TO_RSA_PRIVATE_KEY =  "keys/private_key.pem";
@@ -108,6 +109,33 @@ std::string CryptManager::decryptAes(std::string data, std::string &key)
     EVP_CIPHER_CTX_free(ctx);
 
     return std::string((char*)plaintext.data(), total_len);
+}
+
+std::string CryptManager::genSha512Hash(std::string data)
+{
+
+    std::string result = std::string(SHA256_HASH_SIZE , 0);
+    SHA512_CTX context;
+    if(!SHA512_Init(&context)){
+        std::cout << "CryptManager. cant init sha512 context" << std::endl;
+        return "";
+    }
+    if(!SHA512_Update(&context, data.data(), data.size())){
+        std::cout << "CryptManager. cant update sha512 context her ego znaet chto tam proishodit"<< std::endl;
+        return "";
+    }
+    if(!SHA512_Final((unsigned char *)result.data(), &context)){
+        std::cout << "CryptManager. cant final sha512 hash"<< std::endl;
+        return "";
+    }
+    return result;
+
+
+}
+
+bool CryptManager::compareWithSha512Hash(std::string data, std::string hash)
+{
+    return toBase(hash) == toBase(genSha512Hash(data));
 }
 
 void CryptManager::loadRsaPublicKey(std::string file)
@@ -335,25 +363,48 @@ CryptManagerLoadedRsaKeysState Crypter::load()
 std::string Crypter::crypt(std::string data)
 {
     if (_manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::NONE| _manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::PUBLIC){
-        std::cout << "CryptManager. ERROR! Need normal private key to crypt" << std::endl;
+        std::cout << "CryptManager. ERROR! Need normal private key to crypt hash" << std::endl;
         return "";
     }
-    std::string aesKey = _manager->genAesRandomKey();
-    std::string aesCryptedData = _manager->cryptAes(data,aesKey);
-    std::string aesCryptedAesKey = _manager->cryptRsaPrivate(aesKey);
-    return _manager->toBase(aesCryptedAesKey)  +  KEY_AND_DATA_DELIMER + _manager->toBase(aesCryptedData);
+    std::string hash = _manager->genSha512Hash(data);
+    // std::string aesKey = _manager->genAesRandomKey();
+    // std::string aesCryptedData = _manager->cryptAes(data,aesKey);
+    // std::string aesCryptedAesKey = _manager->cryptRsaPrivate(aesKey);
+    //
+    return _manager->toBase(_manager->cryptRsaPrivate(hash))  +  KEY_AND_DATA_DELIMER + _manager->toBase(data);
+}
+
+bool Crypter::checkValidity(std::string data)
+{
+    if (_manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::NONE| _manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::PRIVATE){
+        std::cout << "CryptManager. ERROR! Need normal public key to check hash" << std::endl;
+        return false;
+    }
+    if (data.find(":")==data.npos){
+        std::cout << "CryptManager. Cant decrypt because not hash in crypt. need delimer" << std::endl;
+        return false;
+    }
+    std::string forHash = data.substr(0, data.find(":"));
+    std::string forData = data.substr(forHash.size()+1 , data.size());
+    std::string decryptedHash = _manager->decryptRsaPublic(_manager->fromBase(forHash));
+    return _manager->compareWithSha512Hash(_manager->fromBase(forData),decryptedHash);
 }
 
 std::string Crypter::decrypt(std::string crypted)
 {
-    if (_manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::NONE| _manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::PRIVATE){
-        std::cout << "CryptManager. ERROR! Need normal public key to decrypt" << std::endl;
+    // if (_manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::NONE| _manager->getRsaKeysState() == CryptManagerLoadedRsaKeysState::PRIVATE){
+    //     std::cout << "CryptManager. ERROR! Need normal public key to decrypt" << std::endl;
+    //     return "";
+    // }
+    //
+    if (crypted.find(":")==crypted.npos){
+        std::cout << "CryptManager. Cant decrypt specify all data for command. need delimer" << std::endl;
         return "";
     }
     std::string forKey = crypted.substr(0, crypted.find(":"));
     std::string forData = crypted.substr(forKey.size()+1 , crypted.size());
     //std::cout << crypted << " = " << forKey + KEY_AND_DATA_DELIMER + forData << std::endl;
-    std::string aesKey = _manager->decryptRsaPublic(_manager->fromBase(forKey));
-    return _manager->decryptAes(_manager->fromBase(forData), aesKey);
+    //std::string aesKey = _manager->decryptRsaPublic(_manager->fromBase(forKey));
+    return _manager->fromBase(forData);
 }
 

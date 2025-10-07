@@ -71,6 +71,8 @@ public:
     std::string decryptAes(std::string data, std::string & key);
 
 
+    std::string genSha512Hash(std::string data);
+    bool compareWithSha512Hash(std::string data, std::string hash);
 
     //rsa crypt with private key
     void loadRsaPublicKey(std::string file);
@@ -102,6 +104,7 @@ public:
     Crypter();
     CryptManagerLoadedRsaKeysState load();
     std::string crypt(std::string data);
+    bool checkValidity(std::string data);
     std::string decrypt(std::string crypted);
 private:
     CryptManager * _manager;

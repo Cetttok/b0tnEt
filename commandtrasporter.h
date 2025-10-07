@@ -1,5 +1,6 @@
 #ifndef COMMANDTRASPORTER_H
 #define COMMANDTRASPORTER_H
+#include "crypter.h"
 #include "executor.h"
 #include "saver.h"
 #include <iostream>
@@ -17,8 +18,12 @@ public:
     void update(); //отправить все невыполняющиеся комманды в выполнение
     std::map<int, std::string> *  shareCommands(); // команды для отправки другим устройствам
     void saveOnDrive(); // сохранить текущее состояние на диск без обновление. Жедательно вызвать перед этим update
-    int getPort();
-    void setPort(int port);
+    int getMainPort();
+    void setMainPort(int port);
+
+    int getPingPort();
+    void setPingPort(int port);
+
     void clearExecutedCommand(); // обновить и проверить состояние комманд отредачить _executedId
 
 private:
@@ -30,6 +35,7 @@ private:
     std::map<int, std::string> _commands; // map<id, текст команды>
     int * _executedId; // массив id выполненных комманд
 
+    Crypter * _crypter = nullptr;
     Executor _executor;
     Saver *  _saver;
 };

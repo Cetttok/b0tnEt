@@ -1,16 +1,17 @@
 #ifndef GLOBALTRANSPORTER_H
 #define GLOBALTRANSPORTER_H
 #include "commandtrasporter.h"
-#include "iplistcollector.h"
+//`#include "iplistcollector.h"
 #include "my_upnp.h"
 #include "stunipgetter.h"
 #include "tcpconnect.h"
 #include "tcpserver.h"
+#include "hostlistcollector.h"
 //сердце проекта
 class GlobalTransporter
 {
 public:
-    GlobalTransporter(bool isDeleteForBadPing = true, bool isLocalNetwork = false); // основной конструктор
+    GlobalTransporter(bool isSimpleMode = true, bool isLocalNetwork = false); // основной конструктор
     ~GlobalTransporter(); // удаляет чисто все поля динамические
     void startListening(); // блокирующий запускает сервер и реакцию на зпросы запускать через  std::thread * thread = new std::thread(&GlobalTransporter::startListening,global);
     void eventLoop(); //блокирующий запускает обновление по списку
@@ -22,11 +23,11 @@ private:
     bool accept(std::string response); // принимает и сообщение
     std::string genAnswer(); // генерирует ответ-обновление
 
-    const bool _isDeleteForBadPing;
+    const bool _isSimpleMode;
     const bool _isLocalNetwork;
 
     CommandTrasporter * _commands = nullptr;
-    IpListCollector * _hostList = nullptr;
+    HostListCollector * _hostList = nullptr;
     TcpServer * _server = nullptr;
     TcpConnect * _connect = nullptr;
     UdpPingOperator * _ping = nullptr;

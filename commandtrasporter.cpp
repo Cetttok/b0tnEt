@@ -7,6 +7,7 @@ const int LAST_LIST_ID_COMMANDS_SIZE = 50;
 
 CommandTrasporter::CommandTrasporter():_executedId(new int[LAST_LIST_ID_COMMANDS_SIZE]),_executor(time(NULL)),_saver(Saver::getSaver())
 {
+    _crypter = new Crypter();
     signal(SIGCHLD, SIG_IGN);
     for (int i = 0 ; i < LAST_LIST_ID_COMMANDS_SIZE; i++){
         _executedId[i] = 0;
@@ -32,19 +33,27 @@ CommandTrasporter::~CommandTrasporter()
 
 bool CommandTrasporter::addCommand(int id, std::string command)
 {
-    if (_commands.find(id) == _commands.end()){
-        if (!isAlreadyExecuted(id)){
-            _commands[id] = command;
-            _executor.startExecute(command,id);
-            return true;
+
+    //std::cout << "cmd: " << command << std::endl;
+    if (_crypter->checkValidity(command)){
+        if (_commands.find(id) == _commands.end()){
+            if (!isAlreadyExecuted(id)){
+                _commands[id] = command;
+                _executor.startExecute(_crypter->decrypt(command),id);
+                return true;
+            }
+            else{
+                //std::cout << "CommandTransporter. Warn! Cant add command. Is already been executed!" << std::endl;
+                return false;
+            }
         }
         else{
-            //std::cout << "CommandTransporter. Warn! Cant add command. Is already been executed!" << std::endl;
+            //std::cout<< "CommandTranporter. Warn! Cant add command. Already in added or loaded from drive..." << std::endl;
             return false;
         }
     }
     else{
-        //std::cout<< "CommandTranporter. Warn! Cant add command. Already in added or loaded from drive..." << std::endl;
+        std::cout << "CommandTransporter. checkValidity FAILED!" << std::endl;
         return false;
     }
 }
@@ -68,23 +77,36 @@ void CommandTrasporter::saveOnDrive()
     _saver->writeCommandsIdToFile(_executedId, LAST_LIST_ID_COMMANDS_SIZE);
 }
 
-int CommandTrasporter::getPort()
+int CommandTrasporter::getMainPort()
 {
-    return _saver->getPort();
+    return _saver->getMainPort();
 }
 
-void CommandTrasporter::setPort(int port)
+void CommandTrasporter::setMainPort(int port)
 {
-    _saver->setPort(port);
+    _saver->setMainPort(port);
+}
+
+
+int CommandTrasporter::getPingPort()
+{
+    return _saver->getPingPort();
+}
+
+void CommandTrasporter::setPingPort(int port)
+{
+    _saver->setPingPort(port);
 }
 
 void CommandTrasporter::sendCommandsToExecutor()
 {
     if (!_commands.empty()){
         for (const auto& [id, command] : _commands){
-            if (!isAlreadyExecuted(id))
-            {
-                _executor.startExecute(command,id);
+            if (_crypter->checkValidity(command)){
+                if (!isAlreadyExecuted(id))
+                {
+                    _executor.startExecute(_crypter->decrypt(command),id);
+                }
             }
         }
     }

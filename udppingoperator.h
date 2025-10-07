@@ -16,9 +16,9 @@ ping.stopPingServer();
 class UdpPingOperator
 {
 public:
-    UdpPingOperator(); //содание и занятие сокета
+    UdpPingOperator(int port); //содание и занятие сокета
     ~UdpPingOperator(); // закрытие сервера. Рекомендуется закрывать до деструктора
-    bool ping(std::string address); // пинг. Есть очень много параметров(cpp файл). Может занять время
+    bool ping(std::string address, int port); // пинг. Есть очень много параметров(cpp файл). Может занять время
     void startPingServer(); // запуск пинг сервера в отдельном потоке
     void stopPingServer(); // осановка пинг сервера
     bool state(); //return _pingServerState ;)
@@ -26,7 +26,8 @@ private:
     void pingLoop(); // функция пинг сервера. Запускается в отдельном потоке в startPingServer
     bool isAnswerPingDataValid(std::string pingData); // надо добавить функциональность тут. Проверяет правильный ли ответ пинг сервера
     bool isResponsePingDataValid(std::string pingData); // проверяет правильный ли запрос пинг клиента
-    UdpWorker _udp;
+    UdpWorker _udpForServer;
+    UdpWorker _udpForClient;
     std::thread * _serverLoopThread = nullptr;
     bool _pingServerState = false;
 };

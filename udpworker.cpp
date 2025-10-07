@@ -42,18 +42,25 @@ std::string UdpWorker::listen()
     while(recvfrom(_socket, nullptr, sizeof(nullptr),
                       MSG_DONTWAIT|MSG_PEEK, nullptr,
                       0)>0); // продолжить если в сокете еще что то есть (проверка на наличие данных)
-    _lastListenedAddress = addr.sin_addr.s_addr;
+    _lastListenedAddress = uint32_t(addr.sin_addr.s_addr);
+    _lastListenedPort = ntohs(addr.sin_port);
+    //std::cout << result <<  "  listen "<< _lastListenedAddress << ":" << _lastListenedPort <<std::endl;
+    //std::cout << "LISTENED! " << result << std::endl;
+    //std::cout << "saved " << _lastListenedAddress << ":" << _lastListenedPort << std::endl;
     return result;
 }
 
-bool UdpWorker::send(std::string message, int port,std::string address)
+bool UdpWorker::send(std::string message,  std::string address, int port)
 {
     struct sockaddr *addr;
     uint32_t s_addr;
+
     if (address == "none"){
         if (_lastListenedAddress != 0){
 
-            s_addr = _lastListenedAddress;
+            s_addr =_lastListenedAddress;
+            port = _lastListenedPort;
+            //std::cout << "server send for " <<std::to_string(_lastListenedAddress) << ":" << std::to_string(_lastListenedPort)/*_lastListenedPort */<< std::endl;
         }
         else{
             std::cout << "UdpWorker::cant send. Please listen first or define address" << std::endl;
@@ -63,6 +70,7 @@ bool UdpWorker::send(std::string message, int port,std::string address)
     else{
         s_addr = inet_addr(address.data());
     }
+    //  std::cout << message <<" SEND! message from " << getSocketPort()  <<" to " << port<< std::endl;
     sockaddr_in addr_in;
     addr_in.sin_family = AF_INET;
     addr_in.sin_port = htons(port);
@@ -77,7 +85,7 @@ bool UdpWorker::send(std::string message, int port,std::string address)
 
 }
 
-bool UdpWorker::send(char *data, int size, int port, std::string address)
+bool UdpWorker::send(char *data, int size,  std::string address, int port)
 {
     uint32_t s_addr = inet_addr(address.data());
     struct sockaddr *addr;

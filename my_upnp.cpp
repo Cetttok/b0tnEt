@@ -61,7 +61,7 @@ void MyUPnP::GetRoutersAddress() {
             "MX: 3\r\n"
             "ST: urn:schemas-upnp-org:service:WANIPConnection:1\r\n"
             "\r\n";
-    udp.send(request,1900,"239.255.255.250");
+    udp.send(request,"239.255.255.250",1900);
 
     std::string firstAns = udp.listen();
     //std::cout << udp.getLocalIp() << " - ip" << endl;

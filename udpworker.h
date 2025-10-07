@@ -29,17 +29,18 @@ public:
     // если порт занят (саме частое ) возвращает false. при успешной привящке true
     std::string listen(); // блокирующий вызов чтения. Похож на похожий метод в классе tcp. Ждет и потом читает пока есть дата в буфере
 
-    bool send(std::string message, int port, std::string address = "none"); // отправка строки по адресу и порту
+    bool send(std::string message, std::string address = "none", int port = 0); // отправка строки по адресу и порту
     // отправка udp пакета по адресу и на порт. Порт сервера к этому отношения не имеет.
     //Если не указать адрес, то будет отправлен на последний адрес с которого пришел пакет. При нормальной отправек возвращает true
 
-    bool send(char * data, int size, int port, std::string address); // отправка массива. При работе со stun сервером понадобилось отправлять более сырую дату.
+    bool send(char * data, int size, std::string address, int port); // отправка массива. При работе со stun сервером понадобилось отправлять более сырую дату.
     //реализацию с последним ip не добавлял - не нужно
 
     bool checkBuffer(); // проверить получено ли что-то. Нужно для класаа пинга
     int getSocketPort(); // если не запускать start то система выберет случайный порт перед отправкой. Так его можно узнать
 private:
-    uint32_t _lastListenedAddress = 0; //  ip адресы в системе хранятся именно так
+    uint32_t _lastListenedAddress = 0;    //  ip адресы в системе хранятся именно так
+    int _lastListenedPort = 0;
     int _socket = 0;
     sockaddr_in _serverAddress;
 };

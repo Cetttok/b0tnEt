@@ -70,7 +70,7 @@ u_int32_t StunIpGetter::parse32IpFromNums(u_int8_t first, u_int8_t second, u_int
 bool StunIpGetter::getIp(u_int8_t * result)
 {
 
-    _udp.send(genStunResponse().data(), MAIN_HEADER_LEN + TRANSACTION_ID_LEN, _stunServerPort, _stunServerAddress);
+    _udp.send(genStunResponse().data(), MAIN_HEADER_LEN + TRANSACTION_ID_LEN,  _stunServerAddress,_stunServerPort);
     std::string cdata = _udp.listen();
 
     if (cdata.size() != BASE_STUN_ANSWER_LEN){
