@@ -1,5 +1,6 @@
 #include "crypter.h"
 #include "globaltransporter.h"
+#include "hostdeterminer.h"
 #include "hostlistcollector.h"
 #include "thread"
 #include <iostream>
@@ -114,6 +115,11 @@ int main(int argc, char *argv[])
 
     cout << endl << "EVENT LOOP START!" << endl << endl;
     global->eventLoop();
+
+    // LocalNetSimpleDetermiter host(Host("192.168.0.113:123:332"));
+    // std::thread * newThread = new std::thread(&LocalNetSimpleDetermiter::startDeterminerServer, host);
+    // std::cout << host.determiteHost().toString() << std::endl;
+
 
     return 0;
     // CryptManager * crypt = CryptManager::getCryptManager();

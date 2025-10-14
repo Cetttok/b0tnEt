@@ -61,6 +61,14 @@ void HostListCollector::sync(std::string input){
     }
 }
 
+bool HostListCollector::isNeedDetermeHost()
+{
+    if(_set->getSize() > 1){
+        return false;
+    }
+    return true;
+}
+
 std::string HostListCollector::share()
 {
     std::string result;
@@ -160,6 +168,11 @@ std::string BaseHostsSetManager::getInfo()
     return "BaseHostsSetManager: new hosts append to end of list if its unical";
 }
 
+int BaseHostsSetManager::getSize()
+{
+    return _size;
+}
+
 void BaseHostsSetManager::setSize(int size)
 {
     _size = size;
@@ -250,4 +263,24 @@ bool SimpleHostsSetManager::acceptHost(Host host)
 std::string SimpleHostsSetManager::getInfo()
 {
     return "SimpleHostsSetManager: new host added to end if its unical and (if active). active hosts not remover always";
+}
+
+int SimpleHostsSetManager::getSize()
+{
+    if (_size==0){
+        return _size;
+    }
+    int result = 0;
+    for (int i = 0 ; i < _size; i++){
+        if (!_hosts[i].isNull()){
+            if (_ping->ping(_hosts[i].ip(), _hosts[i].pingPort())){
+                result++;
+            }
+        }
+        else{
+            break;
+        }
+    }
+    //std::cout << "fucking result " << result << std::endl;
+    return result;
 }

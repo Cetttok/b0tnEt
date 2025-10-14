@@ -7,6 +7,7 @@
 #include "tcpconnect.h"
 #include "tcpserver.h"
 #include "hostlistcollector.h"
+#include "hostdeterminer.h"
 //сердце проекта
 class GlobalTransporter
 {
@@ -49,6 +50,8 @@ private:
 
     std::map<int, std::string> parseCommands(std::string from); // парсинг
     std::string parseIpList(std::string from); //парсинг
+
+    AbstractDetermiter *  _hostDeterminer = nullptr;
 
 
 };

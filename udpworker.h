@@ -1,4 +1,4 @@
-#ifndef UDPWORKER_H
+    #ifndef UDPWORKER_H
 #define UDPWORKER_H
 #include <stdlib.h>
 #include <unistd.h>
@@ -32,6 +32,9 @@ public:
     bool send(std::string message, std::string address = "none", int port = 0); // отправка строки по адресу и порту
     // отправка udp пакета по адресу и на порт. Порт сервера к этому отношения не имеет.
     //Если не указать адрес, то будет отправлен на последний адрес с которого пришел пакет. При нормальной отправек возвращает true
+    bool send(std::string message, u_int32_t address, int port); // отправка строки по адресу и порту
+
+
 
     bool send(char * data, int size, std::string address, int port); // отправка массива. При работе со stun сервером понадобилось отправлять более сырую дату.
     //реализацию с последним ip не добавлял - не нужно

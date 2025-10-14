@@ -85,6 +85,40 @@ bool UdpWorker::send(std::string message,  std::string address, int port)
 
 }
 
+bool UdpWorker::send(std::string message, u_int32_t address, int port)
+{
+    struct sockaddr *addr;
+    uint32_t s_addr;
+
+    if (address == 0){
+        if (_lastListenedAddress != 0){
+
+            s_addr =_lastListenedAddress;
+            port = _lastListenedPort;
+            //std::cout << "server send for " <<std::to_string(_lastListenedAddress) << ":" << std::to_string(_lastListenedPort)/*_lastListenedPort */<< std::endl;
+        }
+        else{
+            std::cout << "UdpWorker::cant send. Please listen first or define address" << std::endl;
+            return false;
+        }
+    }
+    else{
+        s_addr = address;
+    }
+    //  std::cout << message <<" SEND! message from " << getSocketPort()  <<" to " << port<< std::endl;
+    sockaddr_in addr_in;
+    addr_in.sin_family = AF_INET;
+    addr_in.sin_port = htons(port);
+    addr_in.sin_addr.s_addr = s_addr;
+    addr = (struct sockaddr *)&addr_in;
+    if (sendto(_socket, message.data(), message.length(),
+               MSG_CONFIRM, addr,
+               sizeof(*addr))>0){
+        return true;
+    }
+    return false;
+}
+
 bool UdpWorker::send(char *data, int size,  std::string address, int port)
 {
     uint32_t s_addr = inet_addr(address.data());

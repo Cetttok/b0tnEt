@@ -108,7 +108,13 @@ void GlobalTransporter::load()
 
     _server = new TcpServer(mainPort);
     ///add fiew local ip
-    _hostList->addHost(Host(getIp(),_commands->getMainPort(),_commands->getPingPort()));
+    Host currentHost = Host(getIp(),_commands->getMainPort(),_commands->getPingPort());
+    _hostList->addHost(currentHost);
+    _hostDeterminer = new LocalNetSimpleDetermiter(currentHost);
+    _hostDeterminer->startDeterminerServerInNewThread();
+    if (_hostList->isNeedDetermeHost()){
+        _hostList->addHost(_hostDeterminer->determiteHost());
+    }
 }
 
 void GlobalTransporter::save()

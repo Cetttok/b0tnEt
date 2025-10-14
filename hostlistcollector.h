@@ -18,6 +18,7 @@ public:
     virtual bool acceptHost(Host host); // основной метод. в цикле потом используется
     virtual void update(); // типо проверить удалить одинаковые
     virtual std::string getInfo(); //info about algorithm переопределить и написать что делать алгоритм
+    virtual int getSize();
 
 
     void setSize(int size);// если в конструктор не передал
@@ -41,6 +42,7 @@ public:
     SimpleHostsSetManager(UdpPingOperator * ping);
     virtual bool acceptHost(Host host);
     virtual std::string getInfo(); //info about algorithm
+    virtual int getSize();
     // update не переопределить ну тут мне это и не нада
 protected:
     UdpPingOperator * _ping = nullptr;
@@ -54,6 +56,7 @@ public:
     Host getNewTarget(); // блокирующий
     void sync(std::string input); // принять список
 
+    bool isNeedDetermeHost();
     std::string share(); //список для отпраки
 
     void load();
