@@ -6,7 +6,7 @@
 #include <iostream>
 
 using namespace std;
-std::string printHelp(char *firstArgument)
+void printHelp(char *firstArgument)
 {
     std::cout << "russian botnet" << std::endl
               << "usage: " << std::string(firstArgument)
@@ -115,7 +115,17 @@ int main(int argc, char *argv[])
 
     cout << endl << "EVENT LOOP START!" << endl << endl;
     global->eventLoop();
+    // MyUPnP * upnp = new MyUPnP();
+    // Host current("176.195.171.214:1234:1234");
+    // GlobalNetSimpleDeterminer determiner(upnp,current);
+    // determiner.startDeterminerServerInNewThread();
+    // std::cout << determiner.determiteHost().toString() << std::endl;
+    // // UdpWorker udp;
 
+    // for (int i =0; i < 100000; i ++){
+
+    //     udp.send(std::to_string(i) + " \n","127.0.0.1" , 40976);
+    // }
     // LocalNetSimpleDetermiter host(Host("192.168.0.113:123:332"));
     // std::thread * newThread = new std::thread(&LocalNetSimpleDetermiter::startDeterminerServer, host);
     // std::cout << host.determiteHost().toString() << std::endl;

@@ -3,6 +3,9 @@
 const int BUFFER_SIZE = 512;
 const int CHECK_BUFFER_SIZE = 2;
 const int WAIT_BEFORE_CHECK_BUFFER = 3000; //в одной микросекунде 1000 милисекунд ms. микросекунд 3 ms. Для локальной сети 0.25. Для другово соединения сильно завистит от сайта. 10 примерно
+const int TCP_TIMEOUT_CHECK = 300000;
+const struct timeval TIMEOUT= {0, TCP_TIMEOUT_CHECK};
+
 TcpConnect::TcpConnect(std::string ipAddress, const int port):mServerAddress()
 {
     mSocket= socket(AF_INET, SOCK_STREAM, 0);
@@ -12,6 +15,18 @@ TcpConnect::TcpConnect(std::string ipAddress, const int port):mServerAddress()
     mServerAddress.sin_family = AF_INET;
     mServerAddress.sin_port = htons(port);
     mServerAddress.sin_addr.s_addr = inet_addr(ipAddress.data());
+
+}
+
+TcpConnect::TcpConnect(u_int32_t ip, const int port)
+{
+    mSocket= socket(AF_INET, SOCK_STREAM, 0);
+    if (mSocket <= 0){
+        std::cout << "TcpConnect::SocketCreationError - " << strerror(errno) << std::endl;
+    }
+    mServerAddress.sin_family = AF_INET;
+    mServerAddress.sin_port = htons(port);
+    mServerAddress.sin_addr.s_addr = ip;
 
 }
 
@@ -71,4 +86,39 @@ std::string TcpConnect::readSocket()
     }
     while(recv(mSocket, checkBuffer, CHECK_BUFFER_SIZE, MSG_PEEK | MSG_DONTWAIT)>0); // продолжить если в сокете еще что то есть (проверка на наличие данных)
     return result;
+}
+
+bool TcpConnect::checkConnect(u_int32_t ip,  int port,int tries)
+{
+    int socketForTest = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketForTest <= 0){
+        std::cout << "TcpConnect::SocketCreationError - " << strerror(errno) << std::endl;
+        return false;
+    }
+    // struct timeval timeout;
+    // timeout.tv_sec =1;
+    // timeout.tv_usec = 0;
+    if (setsockopt(socketForTest, SOL_SOCKET, SO_SNDTIMEO, &TIMEOUT, sizeof(TIMEOUT)) < 0) {
+        perror("setsockopt");
+        close(socketForTest);
+        return false;
+    }
+
+    sockaddr_in serverAddress;
+
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(port);
+    serverAddress.sin_addr.s_addr = ip;
+    //std::cout << "try to conn" << std::endl;
+    for (int i = 0; i < tries; i++){
+        if (connect(socketForTest, (struct sockaddr*)&serverAddress, sizeof(serverAddress))==0){ // если подключение прошло умпешно
+            //std::cout << "TcpConnect::Connection was fixed." << std::endl; //убрал чтобы не засорять лог
+            close(socketForTest);
+            return true;
+        }
+    }
+   // std::cout << "try canseled" << std::endl;
+    close(socketForTest);
+    return false;
+
 }

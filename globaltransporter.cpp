@@ -95,10 +95,7 @@ void GlobalTransporter::load()
     _ping = new UdpPingOperator(pingPort);
     _ping->startPingServer();
     std::cout << "GloabalTransporter. START TCP SERVER ON HOST- " << getIp() << ":"    <<mainPort<< ":"<< pingPort<< std::endl;
-    if (!_isLocalNetwork){
-        _upnp->openPort(mainPort, "TCP");
-        _upnp->openPort(pingPort, "UDP");
-    }
+
     if (_isSimpleMode){
         _hostList = new HostListCollector(new SimpleHostsSetManager(_ping),_ping);
     }
@@ -109,9 +106,18 @@ void GlobalTransporter::load()
     _server = new TcpServer(mainPort);
     ///add fiew local ip
     Host currentHost = Host(getIp(),_commands->getMainPort(),_commands->getPingPort());
+    if (!_isLocalNetwork){
+        _upnp->openPort(mainPort, "TCP");
+        _upnp->openPort(pingPort, "UDP");
+
+        _hostDeterminer = new GlobalNetSimpleDeterminer(_upnp, currentHost);
+        _hostDeterminer->startDeterminerServerInNewThread();
+    }
+    else{
+        _hostDeterminer = new LocalNetSimpleDetermiter(currentHost);
+        _hostDeterminer->startDeterminerServerInNewThread();
+    }
     _hostList->addHost(currentHost);
-    _hostDeterminer = new LocalNetSimpleDetermiter(currentHost);
-    _hostDeterminer->startDeterminerServerInNewThread();
     if (_hostList->isNeedDetermeHost()){
         _hostList->addHost(_hostDeterminer->determiteHost());
     }

@@ -13,7 +13,7 @@ TcpServer::TcpServer(const int port):mServerAddress()
     mServerAddress.sin_port = htons(port);
     mServerAddress.sin_addr.s_addr = INADDR_ANY;
     if (bind(mServerSocket, (struct sockaddr*)&mServerAddress, sizeof(mServerAddress)) !=0){ // подключение к определенному порту. Если порт занят то все плохо
-        std::cout << "TcpServer::Server bind socket error. Maybe port already used. Error - " << strerror(errno);
+        std::cout << "TcpServer::Server bind socket error. Maybe port already used. port - " << std::to_string(port) << " Error - " << strerror(errno) << std::endl;
     }
 }
 

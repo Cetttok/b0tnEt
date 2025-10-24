@@ -349,7 +349,8 @@ std::string toString(CryptManagerLoadedRsaKeysState from){
 Crypter::Crypter()
 {
     _manager = CryptManager::getCryptManager();
-    std::cout << "Crypter. init done. working with "  << "STATUS: " << toString(load()) << std::endl;
+    CryptManagerLoadedRsaKeysState state = load();
+    std::cout << "Crypter. init done. working with state = " << state  << " STATUS: " << toString(state) << std::endl;
 
 }
 

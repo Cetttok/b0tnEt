@@ -19,7 +19,7 @@ public:
     int pingPort() const;
 
     std::string toString(); // возвращавет строку вида <ip>:<port>
-
+    u_int32_t to32Int();
     bool isNull();
 
 

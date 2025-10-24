@@ -1,4 +1,5 @@
 #include "saver.h"
+#include <arpa/inet.h>
 #include <fstream>
 
 //const int MAX_IP_ADDRES_LEN = 23;
@@ -467,6 +468,11 @@ int Host::mainPort() const
 std::string Host::toString()
 {
     return _ip + ":" + std::to_string(_mainPort) + ":"  + std::to_string(_pingPort);
+}
+
+u_int32_t Host::to32Int()
+{
+    return  inet_addr(_ip.data());
 }
 
 bool Host::isNull()

@@ -153,7 +153,7 @@ int MyUPnP::openPort(unsigned int PortNumber, const char * protocol,  unsigned i
     connect.closeConnection();
 
     //std::cout << "________________answer " <<std::endl;
-
+    //std::cout << "FUCKS!" << std::endl;
     //std::cout << "Your local ip - "<< getLocalIp() << std::endl;
 
     return 0;
