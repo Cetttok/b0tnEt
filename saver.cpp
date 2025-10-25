@@ -430,7 +430,7 @@ Host::Host(std::string parseFrom)
         }
         int positionOfDelimer  = parseFrom.find(IP_PORT_DELIMER);
         if (positionOfDelimer == parseFrom.npos){
-            std::cout << "Host. No delimer in string ("<<IP_PORT_DELIMER<<")" << " from '" << parseFrom <<"'"<< std::endl;
+            std::cout << "Host. Warning! usually null/bad hostHost. No delimer in string ("<<IP_PORT_DELIMER<<")" << " from '" << parseFrom <<"'"<< std::endl;
             return;
         }
 

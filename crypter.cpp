@@ -9,28 +9,6 @@ const char * PATH_TO_RSA_PUBLIC_KEY =  "keys/public_key.pem";
 const char * PATH_TO_RSA_PRIVATE_KEY =  "keys/private_key.pem";
 
 const char KEY_AND_DATA_DELIMER = ':';
-// Crypter::Crypter( Crypter * child ) {}
-
-// std::string Crypter::crypt(std::string &data, std::string &key)
-// {
-//     if (_child == nullptr){
-//         return data;
-//     }
-//     else return _child->crypt(data,key);
-// }
-
-// std::string Crypter::decrypt(std::string &data, std::string &key)
-// {
-//     if (_child == nullptr){
-//         return data;
-//     }
-//     else return _child->decrypt(data,key);
-// }
-
-// std::string Base64Crypter::crypt(std::string &data, std::string &key)
-// {
-//     if (_child=nullptr )
-// }
 
 CryptManagerLoadedRsaKeysState CryptManager::getRsaKeysState()
 {
@@ -233,7 +211,7 @@ std::string CryptManager::decryptRsaPublic(std::string data)
         return "";
     }
     std::string decrypted(RSA_size(_publicKeyRsa), 0);
-    int result = RSA_public_decrypt(  // Используем функцию для публичного ключа
+    int result = RSA_public_decrypt(
         data.size(),
         (const unsigned char*)data.c_str(),
         (unsigned char*)decrypted.data(),
@@ -256,22 +234,18 @@ std::string CryptManager::toBase(std::string data)
     BIO *bio, *b64;
     BUF_MEM *bufferPtr;
 
-    // Создаем цепочку BIO: base64 -> memory
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_new(BIO_s_mem());
     bio = BIO_push(b64, bio);
 
-    // Не добавлять переносы строк
+
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 
-    // Кодируем данные
     BIO_write(bio, data.data(), data.length());
     BIO_flush(bio);
 
-    // Получаем результат из memory BIO
     BIO_get_mem_ptr(bio, &bufferPtr);
 
-    // Копируем в строку
     std::string encoded(bufferPtr->data, bufferPtr->length);
 
     // Очищаем
@@ -284,21 +258,16 @@ std::string CryptManager::fromBase(std::string base)
 {
     BIO *bio, *b64;
 
-    // Выделяем буфер для результата
     std::vector<char> buffer(base.length());
 
-    // Создаем цепочку BIO: memory -> base64
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_new_mem_buf(base.data(), base.length());
     bio = BIO_push(b64, bio);
 
-    // Не ожидать переносы строк
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 
-    // Декодируем
     int decoded_length = BIO_read(bio, buffer.data(), base.length());
 
-    // Очищаем
     BIO_free_all(bio);
 
     if (decoded_length > 0) {

@@ -10,7 +10,8 @@ void printHelp(char *firstArgument)
 {
     std::cout << "russian botnet" << std::endl
               << "usage: " << std::string(firstArgument)
-              << " [init|load] [base|simple] [local|world]" << std::endl;
+              << " [init|load] [base|simple] [local|world]"
+              <<std::endl << "for local load if you have private key use 'loader'"<< std::endl;
 }
 #include <openssl/sha.h>
 
@@ -49,20 +50,6 @@ void loadCmdToNetwork(){
         out.close();
 
     }
-}
-bool simpleSHA256(void* input, unsigned long length, unsigned char* md)
-{
-    SHA512_CTX context;
-    if(!SHA512_Init(&context))
-        return false;
-
-    if(!SHA512_Update(&context, (unsigned char*)input, length))
-        return false;
-
-    if(!SHA512_Final(md, &context))
-        return false;
-
-    return true;
 }
 
 int main(int argc, char *argv[])
@@ -115,34 +102,8 @@ int main(int argc, char *argv[])
 
     cout << endl << "EVENT LOOP START!" << endl << endl;
     global->eventLoop();
-    // MyUPnP * upnp = new MyUPnP();
-    // Host current("176.195.171.214:1234:1234");
-    // GlobalNetSimpleDeterminer determiner(upnp,current);
-    // determiner.startDeterminerServerInNewThread();
-    // std::cout << determiner.determiteHost().toString() << std::endl;
-    // // UdpWorker udp;
-
-    // for (int i =0; i < 100000; i ++){
-
-    //     udp.send(std::to_string(i) + " \n","127.0.0.1" , 40976);
-    // }
-    // LocalNetSimpleDetermiter host(Host("192.168.0.113:123:332"));
-    // std::thread * newThread = new std::thread(&LocalNetSimpleDetermiter::startDeterminerServer, host);
-    // std::cout << host.determiteHost().toString() << std::endl;
 
 
     return 0;
-    // CryptManager * crypt = CryptManager::getCryptManager();
-    // std::string data  = "compute123";
-    // std::string data1  = "compute133";
-    // std::string result = crypt->genSha512Hash(data1);
-    // std::string base =  crypt->toBase(result);
-    // std::cout <<base  << " compare "<<crypt->compareWithSha512Hash(data,crypt->fromBase(base) )<< std::endl;
-    // unsigned char md[64]; // 32 bytes
-    // if(!simpleSHA256(data.data(), data.size(), md))
-    // {
-    //     std::cout << "err" << std::endl;
-    // }
-    // std::cout << crypt->toBase(std::string((char*)md,64)) << std::endl;
 
 }

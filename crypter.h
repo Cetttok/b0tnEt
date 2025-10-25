@@ -11,54 +11,16 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
-
-// class Crypter // abstract
-// {
-// public:
-//     Crypter( Crypter * child = nullptr);
-//     virtual std::string crypt(std::string & data, std::string & key);
-//     virtual std::string decrypt(std::string & data, std::string & key);
-
-// protected:
-//     Crypter * _child = nullptr;
-// };
-
-// class Base64Crypter : public Crypter
-// {
-// public:
-//     Base64Crypter( Crypter * child = nullptr);
-//     virtual std::string crypt(std::string & data, std::string & key);
-//     virtual std::string decrypt(std::string & data, std::string & key);
-// };
-
-// class RsaCrypter : public Crypter
-// {
-// public:
-//     RsaCrypter( Crypter * child = nullptr);
-//     virtual std::string crypt(std::string & data, std::string & key);
-//     virtual std::string decrypt(std::string & data, std::string & key);
-// };
-
-// class AesCrypter : public Crypter
-// {
-// public:
-//     AesCrypter( Crypter * child = nullptr);
-//     virtual std::string crypt(std::string & data, std::string & key);
-//     virtual std::string decrypt(std::string & data, std::string & key);
-// };
-
-// class RsaPrivateCrypter : public Crypter
-// {
-// public:
-//     RsaPrivateCrypter( Crypter * child = nullptr);
-//     virtual std::string crypt(std::string & data, std::string & key);
-//     virtual std::string decrypt(std::string & data, std::string & key);
-// };
+// тут много самих функций через gpt было
+/* ключи
+const char * PATH_TO_RSA_PUBLIC_KEY =  "keys/public_key.pem";
+const char * PATH_TO_RSA_PRIVATE_KEY =  "keys/private_key.pem";
+*/
 enum CryptManagerLoadedRsaKeysState{
     PUBLIC, PRIVATE, ALL, NONE
 };
 
-class CryptManager
+class CryptManager // типо метод с кучей методотов к ооп мало отношения имеет
 {
 public:
     CryptManagerLoadedRsaKeysState getRsaKeysState();
@@ -98,7 +60,8 @@ private:
     RSA* _privateKeyRsa = nullptr;
     //std::string _rsaPrivateKey = "";
 };
-class Crypter
+class Crypter // сердце криптографии
+// тут как шифровать и чем устонавливается
 {
 public:
     Crypter();

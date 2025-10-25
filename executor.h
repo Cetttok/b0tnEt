@@ -41,7 +41,7 @@
 //     Command * mCommand;
 //     std::thread * mThread;
 //     void stop(); // остановка выполнения (kill)
-// };
+// }; это все стало не нужно  после рефакторинга
 
 
 class Executor
